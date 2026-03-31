@@ -57,6 +57,12 @@ export default function ProfileCreation() {
         </Link>
         <div className="flex items-center gap-2">
           <Link
+            href="/rolodex"
+            className="rounded-lg border border-white bg-[#b06bff] px-6 py-1.5 text-base font-semibold text-white hover:bg-[#9a50f0] transition-colors"
+          >
+            Rolodex
+          </Link>
+          <Link
             href="/signup"
             className="rounded-lg border border-white bg-[#b06bff] px-6 py-1.5 text-base font-semibold text-white hover:bg-[#9a50f0] transition-colors"
           >
