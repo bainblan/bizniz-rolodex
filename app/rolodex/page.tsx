@@ -3,7 +3,7 @@
 import { useEffect, useState } from "react";
 import Image from "next/image";
 import Link from "next/link";
-import { supabase } from "@/app/libs/supabase"; 
+import { supabase, isSupabaseConfigured } from "@/app/libs/supabase"; 
 
 // --- Icons ---
 
@@ -113,6 +113,11 @@ export default function Rolodex() {
 
   useEffect(() => {
     async function fetchCards() {
+      if (!isSupabaseConfigured) {
+        setLoading(false);
+        return;
+      }
+
       const { data, error } = await supabase
         .from("business_cards")
         .select("*")

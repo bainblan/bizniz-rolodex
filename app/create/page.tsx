@@ -4,9 +4,9 @@ import { useState } from "react";
 import Image from "next/image";
 import Link from "next/link";
 import { useRouter } from "next/navigation";
-import { supabase } from "@/app/libs/supabase";
+import { supabase, isSupabaseConfigured } from "@/app/libs/supabase";
 
-// --- Icons (Keeping your original SVGs) ---
+// --- Icons ---
 function MenuIcon() {
   return (
     <svg width="40" height="40" viewBox="0 0 24 24" fill="none">
@@ -55,7 +55,6 @@ export default function ProfileCreation() {
   const router = useRouter();
   const [loading, setLoading] = useState(false);
 
-  // 1. Setup State for Form Fields
   const [formData, setFormData] = useState({
     firstName: "",
     lastName: "",
@@ -64,24 +63,18 @@ export default function ProfileCreation() {
     phone: "",
     email: "",
     website: "",
-    cardColor: "#400068", // Default color
+    cardColor: "#400068",
   });
 
-
-  //regex helper
   const validateEmail = (email: string) => /^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email);
   const validateWebsite = (url: string) => {
-    // If the field is empty, it's valid (assuming it's optional)
-    if (!url) return true; 
-    
-    // Checks for: anything + dot + at least 2 characters at the end
+    if (!url) return true;
     const pattern = /.+\.[a-z]{2,}$/i;
     return pattern.test(url.trim());
   };
-  
-  // Formats phone as (XXX) XXX-XXXX as the user types
+
   const handlePhoneChange = (e: React.ChangeEvent<HTMLInputElement>) => {
-    const value = e.target.value.replace(/\D/g, ""); // remove non-digits
+    const value = e.target.value.replace(/\D/g, "");
     let formatted = value;
     if (value.length > 3 && value.length <= 6) {
       formatted = `(${value.slice(0, 3)}) ${value.slice(3)}`;
@@ -91,8 +84,6 @@ export default function ProfileCreation() {
     setFormData({ ...formData, phone: formatted });
   };
 
-
-  // 2. Handle input changes
   const handleChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     if (e.target.name === "phone") {
       handlePhoneChange(e);
@@ -101,23 +92,19 @@ export default function ProfileCreation() {
     }
   };
 
-  // 3. Submit to Supabase
   const handleGenerate = async () => {
     const { firstName, lastName, companyName, tagline, email, website, phone } = formData;
 
-    // String Length Checks
     if (firstName.length > 15 || lastName.length > 15 || companyName.length > 15) {
       return alert("Names and Business Name must be 15 characters or less.");
     }
     if (tagline.length > 20) {
       return alert("Tagline must be 20 characters or less.");
     }
-
-    // Format Checks
     if (!validateEmail(email)) {
       return alert("Please enter a valid email address.");
     }
-    if (phone.length < 14) { // (XXX) XXX-XXXX is 14 chars
+    if (phone.length < 14) {
       return alert("Please enter a full phone number: (XXX) XXX-XXXX");
     }
     if (website && !validateWebsite(website)) {
@@ -125,6 +112,12 @@ export default function ProfileCreation() {
     }
 
     setLoading(true);
+
+    if (!isSupabaseConfigured) {
+      alert("Supabase is not configured yet. Add your .env.local credentials to save cards.");
+      setLoading(false);
+      return;
+    }
 
     const { error } = await supabase.from("business_cards").insert([
       {
@@ -136,7 +129,7 @@ export default function ProfileCreation() {
         email: formData.email,
         website: formData.website,
         card_color: formData.cardColor,
-        qr_code_url: "/sample-qr.png", // Temporarily static
+        qr_code_url: "/sample-qr.png",
       },
     ]);
 
@@ -144,14 +137,14 @@ export default function ProfileCreation() {
       alert("Error saving card: " + error.message);
     } else {
       alert("Card Generated Successfully!");
-      router.push("/rolodex"); // Redirect to Rolodex to see the new card
+      router.push("/rolodex");
     }
     setLoading(false);
   };
 
   return (
     <div className="flex flex-col items-center gap-14 w-full min-h-screen bg-[#4a4a4a] pb-8">
-      {/* Navbar - Original Styling */}
+      {/* Navbar */}
       <nav className="flex items-center justify-between w-full px-2.5">
         <Link href="/" className="flex items-center gap-3 px-1 py-1.5">
           <MenuIcon />
@@ -160,69 +153,65 @@ export default function ProfileCreation() {
         <div className="flex items-center gap-2">
           <Link
             href="/rolodex"
-            className="rounded-lg border border-white bg-[#b06bff] px-6 py-1.5 text-base font-semibold text-white"
+            className="rounded-lg border border-white bg-[#b06bff] px-6 py-1.5 text-base font-semibold text-white hover:bg-[#9a50f0] transition-colors"
           >
             Rolodex
           </Link>
           <Link
             href="/signup"
-            className="rounded-lg border border-white bg-[#b06bff] px-6 py-1.5 text-base font-semibold text-white"
+            className="rounded-lg border border-white bg-[#b06bff] px-6 py-1.5 text-base font-semibold text-white hover:bg-[#9a50f0] transition-colors"
           >
             Signup
           </Link>
           <Link
             href="/login"
-            className="rounded-lg border border-white bg-[#b06bff] px-6 py-1.5 text-base font-semibold text-white"
+            className="rounded-lg border border-white bg-[#b06bff] px-6 py-1.5 text-base font-semibold text-white hover:bg-[#9a50f0] transition-colors"
           >
             Login
           </Link>
         </div>
       </nav>
 
-<<<<<<< HEAD
-      {/* Profile & Logo Upload */}
-      <div className="flex items-center justify-center gap-7">
-        <div className="flex flex-col items-center gap-3.5">
-          <div className="w-[149px] h-[149px] rounded-full bg-gray-300 overflow-hidden" />
-          <span className="text-base font-semibold text-white cursor-pointer">
-            Edit Profile Picture
-          </span>
-        </div>
-        <div className="flex flex-col items-center gap-3.5">
-          <div className="w-[149px] h-[149px] rounded-full bg-gray-300 overflow-hidden" />
-          <span className="text-base font-semibold text-white cursor-pointer">
-            Edit Logo Picture
-          </span>
-        </div>
-      </div>
-=======
       {/* Main Content: Card Preview (left) + Form (right) */}
       <div className="flex flex-1 w-full justify-center gap-10 px-8 items-center">
-        {/* Left: Business Card Preview (large) */}
+        {/* Left: Business Card Preview (Reactive) */}
         <div className="flex flex-col items-center justify-center">
-          <div className="flex items-center justify-between w-[600px] h-[345px] bg-[#400068] px-10 py-10 rounded-lg shadow-lg">
+          <div
+            className="flex items-center justify-between w-[600px] h-[345px] px-10 py-10 rounded-lg shadow-lg transition-colors duration-300"
+            style={{ backgroundColor: formData.cardColor }}
+          >
             <div className="flex flex-col justify-between h-full min-w-0 flex-1 mr-6">
               <div className="text-white">
-                <p className="text-3xl font-bold leading-normal">CompanyName</p>
-                <p className="text-base font-semibold leading-normal">OptionalTagline</p>
+                <p className="text-3xl font-bold leading-normal truncate">
+                  {formData.companyName || "CompanyName"}
+                </p>
+                <p className="text-base font-semibold leading-normal truncate">
+                  {formData.tagline || "OptionalTagline"}
+                </p>
               </div>
               <div className="flex flex-col gap-2">
                 <div className="flex gap-2.5 text-base font-semibold text-white">
-                  <span>FirstName</span>
-                  <span>LastName</span>
+                  <span>{formData.firstName || "FirstName"}</span>
+                  <span>{formData.lastName || "LastName"}</span>
                 </div>
                 <div className="flex flex-col gap-2">
                   <div className="flex items-center gap-2.5">
                     <PhoneIcon />
-                    <span className="text-sm text-white truncate">pho-nen-umber</span>
+                    <span className="text-sm text-white truncate">
+                      {formData.phone || "pho-nen-umber"}
+                    </span>
                   </div>
                   <div className="flex items-center gap-2.5 min-w-0">
                     <span className="shrink-0"><EmailIcon /></span>
-                    <span className="text-sm text-white break-all">email@address</span>
+                    <span className="text-sm text-white break-all">
+                      {formData.email || "email@address"}
+                    </span>
                   </div>
                   <div className="flex items-center gap-2.5 min-w-0">
                     <span className="shrink-0"><WebsiteIcon /></span>
-                    <span className="text-sm text-white break-all">website.url</span>
+                    <span className="text-sm text-white break-all">
+                      {formData.website || "website.url"}
+                    </span>
                   </div>
                 </div>
               </div>
@@ -236,7 +225,6 @@ export default function ProfileCreation() {
             />
           </div>
         </div>
->>>>>>> baines
 
         {/* Right: Form Fields */}
         <div className="flex flex-col gap-4 w-full max-w-[400px] shrink-0">
@@ -267,165 +255,86 @@ export default function ProfileCreation() {
           <div className="flex gap-2.5 w-full">
             <input
               type="text"
+              name="firstName"
               placeholder="FirstName"
+              value={formData.firstName}
+              onChange={handleChange}
               className="flex-1 min-w-0 rounded-lg bg-white px-2.5 py-3 text-lg text-black placeholder:text-black/25 outline-none"
             />
             <input
               type="text"
+              name="lastName"
               placeholder="LastName"
+              value={formData.lastName}
+              onChange={handleChange}
               className="flex-1 min-w-0 rounded-lg bg-white px-2.5 py-3 text-lg text-black placeholder:text-black/25 outline-none"
             />
           </div>
           <input
-<<<<<<< HEAD
-            name="firstName"
-            placeholder="FirstName"
-            value={formData.firstName}
-            onChange={handleChange}
-            className="flex-1 min-w-0 rounded-lg bg-white px-2.5 py-4 text-xl text-black outline-none"
-          />
-          <input
-            name="lastName"
-            placeholder="LastName"
-            value={formData.lastName}
-            onChange={handleChange}
-            className="flex-1 min-w-0 rounded-lg bg-white px-2.5 py-4 text-xl text-black outline-none"
-          />
-        </div>
-        <input
-          name="companyName"
-          placeholder="Business Name"
-          value={formData.companyName}
-          onChange={handleChange}
-          className="w-full rounded-lg bg-white px-2.5 py-4 text-xl text-black outline-none"
-        />
-        <input
-          name="tagline"
-          placeholder="Tagline"
-          value={formData.tagline}
-          onChange={handleChange}
-          className="w-full rounded-lg bg-white px-2.5 py-4 text-xl text-black outline-none"
-        />
-        <input
-          name="email"
-          placeholder="Email Address"
-          value={formData.email}
-          onChange={handleChange}
-          className="w-full rounded-lg bg-white px-2.5 py-4 text-xl text-black outline-none"
-        />
-        <input
-          name="phone"
-          placeholder="Phone Number"
-          value={formData.phone}
-          onChange={handleChange}
-          className="w-full rounded-lg bg-white px-2.5 py-4 text-xl text-black outline-none"
-        />
-        <input
-          name="website"
-          placeholder="Website URL"
-          value={formData.website}
-          onChange={handleChange}
-          className="w-full rounded-lg bg-white px-2.5 py-4 text-xl text-black outline-none"
-        />
-
-        {/* Color Picker Logic */}
-        <div className="flex items-center justify-center gap-2.5 py-2">
-          <label className="cursor-pointer">
-            <ColorPickerIcon />
-            <input
-              type="color"
-              name="cardColor"
-              value={formData.cardColor}
-              onChange={handleChange}
-              className="hidden"
-            />
-          </label>
-          <span className="text-xl font-bold text-white">
-            Choose Card Color
-          </span>
-        </div>
-
-        <button
-          onClick={handleGenerate}
-          disabled={loading}
-          className="w-full rounded-lg bg-[#b06bff] py-[18px] text-xl font-bold text-white hover:bg-[#9a50f0] transition-colors disabled:opacity-50"
-        >
-          {loading ? "Generating..." : "Generate"}
-        </button>
-      </div>
-
-      {/* Business Card Preview (Now Reactive) */}
-      <div
-        className="flex items-center justify-between w-[365px] h-[209px] px-6 py-7 shadow-2xl transition-colors duration-300"
-        style={{ backgroundColor: formData.cardColor }}
-      >
-        <div className="flex flex-col justify-between h-full w-[151px]">
-          <div className="text-white">
-            <p className="text-xl font-bold leading-normal truncate">
-              {formData.companyName || "CompanyName"}
-            </p>
-            <p className="text-xs font-semibold leading-normal truncate">
-              {formData.tagline || "OptionalTagline"}
-            </p>
-          </div>
-          <div className="flex flex-col gap-1.5">
-            <div className="flex gap-2.5 text-xs font-semibold text-white">
-              <span>{formData.firstName || "FirstName"}</span>
-              <span>{formData.lastName || "LastName"}</span>
-            </div>
-            <div className="flex flex-col gap-1.5">
-              <div className="flex items-center gap-2.5">
-                <PhoneIcon />
-                <span className="text-xs text-white truncate">
-                  {formData.phone || "Phone"}
-                </span>
-              </div>
-              <div className="flex items-center gap-2.5">
-                <EmailIcon />
-                <span className="text-xs text-white truncate">
-                  {formData.email || "Email"}
-                </span>
-              </div>
-              <div className="flex items-center gap-2.5">
-                <WebsiteIcon />
-                <span className="text-xs text-white truncate">
-                  {formData.website || "Website"}
-                </span>
-              </div>
-            </div>
-=======
             type="text"
+            name="companyName"
             placeholder="Business Name"
+            value={formData.companyName}
+            onChange={handleChange}
             className="w-full rounded-lg bg-white px-2.5 py-3 text-lg text-black placeholder:text-black/25 outline-none"
           />
           <input
             type="text"
+            name="tagline"
             placeholder="Tagline"
+            value={formData.tagline}
+            onChange={handleChange}
+            className="w-full rounded-lg bg-white px-2.5 py-3 text-lg text-black placeholder:text-black/25 outline-none"
+          />
+          <input
+            type="text"
+            name="email"
+            placeholder="Email Address"
+            value={formData.email}
+            onChange={handleChange}
             className="w-full rounded-lg bg-white px-2.5 py-3 text-lg text-black placeholder:text-black/25 outline-none"
           />
           <input
             type="tel"
+            name="phone"
             placeholder="Phone Number"
+            value={formData.phone}
+            onChange={handleChange}
             className="w-full rounded-lg bg-white px-2.5 py-3 text-lg text-black placeholder:text-black/25 outline-none"
           />
           <input
             type="url"
+            name="website"
             placeholder="Website URL"
+            value={formData.website}
+            onChange={handleChange}
             className="w-full rounded-lg bg-white px-2.5 py-3 text-lg text-black placeholder:text-black/25 outline-none"
           />
 
-          {/* Color Picker Row */}
+          {/* Color Picker */}
           <div className="flex items-center justify-center gap-2.5">
-            <ColorPickerIcon />
+            <label className="cursor-pointer">
+              <ColorPickerIcon />
+              <input
+                type="color"
+                name="cardColor"
+                value={formData.cardColor}
+                onChange={handleChange}
+                className="hidden"
+              />
+            </label>
             <span className="text-xl font-bold text-white">
-              Color Picker - or - Upload img
+              Choose Card Color
             </span>
->>>>>>> baines
           </div>
 
           {/* Generate Button */}
-          <button className="w-full rounded-lg bg-[#b06bff] py-[18px] text-xl font-bold text-white hover:bg-[#9a50f0] transition-colors">
-            Generate
+          <button
+            onClick={handleGenerate}
+            disabled={loading}
+            className="w-full rounded-lg bg-[#b06bff] py-[18px] text-xl font-bold text-white hover:bg-[#9a50f0] transition-colors disabled:opacity-50"
+          >
+            {loading ? "Generating..." : "Generate"}
           </button>
         </div>
       </div>
