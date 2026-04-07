@@ -105,35 +105,66 @@ export default function Home() {
       </section>
 
       {/* What Is BIZNIZ Section */}
-      <section className="flex flex-col items-center gap-6 w-full py-3 bg-white overflow-hidden">
-        <h2 className="text-2xl font-bold text-black">
+      <section className="flex flex-col items-center gap-12 w-full py-20 bg-white overflow-hidden">
+        <h2 className="text-4xl font-bold text-black">
           WHAT IS BIZNIZ?
         </h2>
 
-        {/* Example Business Card */}
-        <div className="flex items-center justify-between w-[365px] h-[209px] bg-[#400068] px-6 py-7">
-          <div className="flex flex-col justify-between h-full w-[151px]">
-            <div className="text-white">
-              <p className="text-xl font-bold leading-normal">CompanyName</p>
-              <p className="text-xs font-semibold leading-normal">OptionalTagline</p>
+        {/* How It Works Row */}
+        <div className="flex items-start justify-center gap-16 w-full max-w-[700px] px-4">
+          <div className="flex flex-col items-center gap-3 flex-1">
+            <div className="w-16 h-16 rounded-full bg-[#b06bff] flex items-center justify-center">
+              <svg width="28" height="28" viewBox="0 0 24 24" fill="white">
+                <path d="M3 17.25V21h3.75L17.81 9.94l-3.75-3.75L3 17.25zM20.71 7.04a1.003 1.003 0 000-1.42l-2.34-2.34a1.003 1.003 0 00-1.42 0l-1.83 1.83 3.75 3.75 1.84-1.82z" />
+              </svg>
             </div>
-            <div className="flex flex-col gap-1.5">
-              <div className="flex gap-2.5 text-xs font-semibold text-white">
+            <h3 className="text-lg font-bold text-black">Create</h3>
+            <p className="text-sm text-black/60 text-center">Design your digital business card in minutes</p>
+          </div>
+          <div className="flex flex-col items-center gap-3 flex-1">
+            <div className="w-16 h-16 rounded-full bg-[#b06bff] flex items-center justify-center">
+              <svg width="28" height="28" viewBox="0 0 24 24" fill="white">
+                <path d="M3 3v8h8V3H3zm6 6H5V5h4v4zm-6 4v8h8v-8H3zm6 6H5v-4h4v4zm4-16v8h8V3h-8zm6 6h-4V5h4v4zm-6 4v8h8v-8h-8zm6 6h-4v-4h4v4z" />
+              </svg>
+            </div>
+            <h3 className="text-lg font-bold text-black">Share</h3>
+            <p className="text-sm text-black/60 text-center">Let anyone scan your unique QR code</p>
+          </div>
+          <div className="flex flex-col items-center gap-3 flex-1">
+            <div className="w-16 h-16 rounded-full bg-[#b06bff] flex items-center justify-center">
+              <svg width="28" height="28" viewBox="0 0 24 24" fill="white">
+                <path d="M16 11c1.66 0 2.99-1.34 2.99-3S17.66 5 16 5s-3 1.34-3 3 1.34 3 3 3zm-8 0c1.66 0 2.99-1.34 2.99-3S9.66 5 8 5 5 6.34 5 8s1.34 3 3 3zm0 2c-2.33 0-7 1.17-7 3.5V19h14v-2.5c0-2.33-4.67-3.5-7-3.5zm8 0c-.29 0-.62.02-.97.05 1.16.84 1.97 1.97 1.97 3.45V19h6v-2.5c0-2.33-4.67-3.5-7-3.5z" />
+              </svg>
+            </div>
+            <h3 className="text-lg font-bold text-black">Connect</h3>
+            <p className="text-sm text-black/60 text-center">They save you straight to their digital rolodex</p>
+          </div>
+        </div>
+
+        {/* Example Business Card */}
+        <div className="flex items-center justify-between w-[500px] h-[285px] bg-[#400068] px-8 py-8 rounded-xl shadow-xl">
+          <div className="flex flex-col justify-between h-full w-[200px]">
+            <div className="text-white">
+              <p className="text-2xl font-bold leading-normal">CompanyName</p>
+              <p className="text-sm font-semibold leading-normal">OptionalTagline</p>
+            </div>
+            <div className="flex flex-col gap-2">
+              <div className="flex gap-2.5 text-sm font-semibold text-white">
                 <span>FirstName</span>
                 <span>LastName</span>
               </div>
-              <div className="flex flex-col gap-1.5">
+              <div className="flex flex-col gap-2">
                 <div className="flex items-center gap-2.5">
                   <PhoneIcon />
-                  <span className="text-xs text-white">pho-nen-umber</span>
+                  <span className="text-sm text-white">pho-nen-umber</span>
                 </div>
                 <div className="flex items-center gap-2.5">
                   <EmailIcon />
-                  <span className="text-xs text-white">email@address</span>
+                  <span className="text-sm text-white">email@address</span>
                 </div>
                 <div className="flex items-center gap-2.5">
                   <WebsiteIcon />
-                  <span className="text-xs text-white">website.url</span>
+                  <span className="text-sm text-white">website.url</span>
                 </div>
               </div>
             </div>
@@ -141,30 +172,35 @@ export default function Home() {
           <Image
             src="/sample-qr.png"
             alt="Sample QR Code"
-            width={153}
-            height={153}
+            width={180}
+            height={180}
             className="object-cover"
           />
         </div>
 
         {/* Description */}
-        <p className="w-[357px] text-base font-medium text-black/60">
+        <p className="w-full max-w-[550px] text-lg font-medium text-black/60 text-center px-4">
           Inspired by Linktree, Bizniz allows you to make your own digital
           business card that anyone can scan and have in their digital wallet.
-          For example, you go to a hackathon and want one of the recruiters for
-          NCR Voyix to see that you made an AI startup that got $2000 in revenue
-          and 500 users last quarter. Instead of giving them a paper business
-          card that they will immediately throw away or a resume that they have
-          no convenient place to put
+          Go to a hackathon, a conference, or a networking event — instead of
+          handing out paper cards that get tossed or resumes with nowhere to go,
+          just let them scan your code. Your info lands right in their rolodex,
+          ready when they need it.
         </p>
 
         <Link
           href="/rolodex"
-          className="rounded-lg border border-white bg-[#b06bff] px-6 py-3 text-base font-semibold text-white hover:bg-[#9a50f0] transition-colors"
+          className="rounded-lg border border-white bg-[#b06bff] px-10 py-4 text-lg font-semibold text-white hover:bg-[#9a50f0] transition-colors"
         >
           View Your Rolodex
         </Link>
       </section>
+
+      {/* Footer */}
+      <footer className="flex items-center justify-between w-full px-8 py-6 bg-[#4a4a4a]">
+        <span className="text-lg font-bold italic text-white">BIZNIZ</span>
+        <span className="text-sm text-white/60">&copy; 2026 Bizniz. All rights reserved.</span>
+      </footer>
     </div>
   );
 }
