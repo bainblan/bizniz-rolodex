@@ -179,6 +179,7 @@ export default function ProfileCreation() {
         </div>
       </nav>
 
+<<<<<<< HEAD
       {/* Profile & Logo Upload */}
       <div className="flex items-center justify-center gap-7">
         <div className="flex flex-col items-center gap-3.5">
@@ -194,11 +195,89 @@ export default function ProfileCreation() {
           </span>
         </div>
       </div>
+=======
+      {/* Main Content: Card Preview (left) + Form (right) */}
+      <div className="flex flex-1 w-full justify-center gap-10 px-8 items-center">
+        {/* Left: Business Card Preview (large) */}
+        <div className="flex flex-col items-center justify-center">
+          <div className="flex items-center justify-between w-[600px] h-[345px] bg-[#400068] px-10 py-10 rounded-lg shadow-lg">
+            <div className="flex flex-col justify-between h-full min-w-0 flex-1 mr-6">
+              <div className="text-white">
+                <p className="text-3xl font-bold leading-normal">CompanyName</p>
+                <p className="text-base font-semibold leading-normal">OptionalTagline</p>
+              </div>
+              <div className="flex flex-col gap-2">
+                <div className="flex gap-2.5 text-base font-semibold text-white">
+                  <span>FirstName</span>
+                  <span>LastName</span>
+                </div>
+                <div className="flex flex-col gap-2">
+                  <div className="flex items-center gap-2.5">
+                    <PhoneIcon />
+                    <span className="text-sm text-white truncate">pho-nen-umber</span>
+                  </div>
+                  <div className="flex items-center gap-2.5 min-w-0">
+                    <span className="shrink-0"><EmailIcon /></span>
+                    <span className="text-sm text-white break-all">email@address</span>
+                  </div>
+                  <div className="flex items-center gap-2.5 min-w-0">
+                    <span className="shrink-0"><WebsiteIcon /></span>
+                    <span className="text-sm text-white break-all">website.url</span>
+                  </div>
+                </div>
+              </div>
+            </div>
+            <Image
+              src="/sample-qr.png"
+              alt="Sample QR Code"
+              width={200}
+              height={200}
+              className="object-cover shrink-0"
+            />
+          </div>
+        </div>
+>>>>>>> baines
 
-      {/* Form Fields */}
-      <div className="flex flex-col gap-2.5 items-center w-full max-w-[393px] px-4">
-        <div className="flex gap-2.5 w-full">
+        {/* Right: Form Fields */}
+        <div className="flex flex-col gap-4 w-full max-w-[400px] shrink-0">
+          {/* Profile & Logo Picture Upload */}
+          <div className="flex items-center justify-center gap-7 mb-2">
+            <div className="flex flex-col items-center gap-3.5">
+              <div className="w-[100px] h-[100px] rounded-full bg-gray-300 overflow-hidden">
+                <div className="w-full h-full flex items-center justify-center text-gray-500 text-sm">
+                  Profile
+                </div>
+              </div>
+              <span className="text-sm font-semibold text-white">
+                Edit Profile Picture
+              </span>
+            </div>
+            <div className="flex flex-col items-center gap-3.5">
+              <div className="w-[100px] h-[100px] rounded-full bg-gray-300 overflow-hidden">
+                <div className="w-full h-full flex items-center justify-center text-gray-500 text-sm">
+                  Logo
+                </div>
+              </div>
+              <span className="text-sm font-semibold text-white">
+                Edit Logo Picture
+              </span>
+            </div>
+          </div>
+
+          <div className="flex gap-2.5 w-full">
+            <input
+              type="text"
+              placeholder="FirstName"
+              className="flex-1 min-w-0 rounded-lg bg-white px-2.5 py-3 text-lg text-black placeholder:text-black/25 outline-none"
+            />
+            <input
+              type="text"
+              placeholder="LastName"
+              className="flex-1 min-w-0 rounded-lg bg-white px-2.5 py-3 text-lg text-black placeholder:text-black/25 outline-none"
+            />
+          </div>
           <input
+<<<<<<< HEAD
             name="firstName"
             placeholder="FirstName"
             value={formData.firstName}
@@ -314,15 +393,41 @@ export default function ProfileCreation() {
                 </span>
               </div>
             </div>
+=======
+            type="text"
+            placeholder="Business Name"
+            className="w-full rounded-lg bg-white px-2.5 py-3 text-lg text-black placeholder:text-black/25 outline-none"
+          />
+          <input
+            type="text"
+            placeholder="Tagline"
+            className="w-full rounded-lg bg-white px-2.5 py-3 text-lg text-black placeholder:text-black/25 outline-none"
+          />
+          <input
+            type="tel"
+            placeholder="Phone Number"
+            className="w-full rounded-lg bg-white px-2.5 py-3 text-lg text-black placeholder:text-black/25 outline-none"
+          />
+          <input
+            type="url"
+            placeholder="Website URL"
+            className="w-full rounded-lg bg-white px-2.5 py-3 text-lg text-black placeholder:text-black/25 outline-none"
+          />
+
+          {/* Color Picker Row */}
+          <div className="flex items-center justify-center gap-2.5">
+            <ColorPickerIcon />
+            <span className="text-xl font-bold text-white">
+              Color Picker - or - Upload img
+            </span>
+>>>>>>> baines
           </div>
+
+          {/* Generate Button */}
+          <button className="w-full rounded-lg bg-[#b06bff] py-[18px] text-xl font-bold text-white hover:bg-[#9a50f0] transition-colors">
+            Generate
+          </button>
         </div>
-        <Image
-          src="/sample-qr.png"
-          alt="Sample QR Code"
-          width={153}
-          height={153}
-          className="object-cover"
-        />
       </div>
     </div>
   );
