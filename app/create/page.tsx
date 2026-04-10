@@ -40,13 +40,10 @@ function WebsiteIcon() {
     </svg>
   );
 }
-function ColorPickerIcon() {
+function BriefcaseIcon() {
   return (
-    <svg width="56" height="56" viewBox="0 0 24 24" fill="none">
-      <path
-        d="M20.71 5.63l-2.34-2.34a1 1 0 00-1.41 0l-3.12 3.12-1.93-1.91-1.41 1.41 1.42 1.42L3 16.25V21h4.75l8.92-8.92 1.42 1.42 1.41-1.41-1.92-1.92 3.12-3.12a1 1 0 000-1.42zM6.92 19L5 17.08l8.06-8.06 1.92 1.92L6.92 19z"
-        fill="white"
-      />
+    <svg width="14" height="14" viewBox="0 0 24 24" fill="white">
+      <path d="M20 6h-4V4c0-1.11-.89-2-2-2h-4c-1.11 0-2 .89-2 2v2H4c-1.11 0-1.99.89-1.99 2L2 19c0 1.11.89 2 2 2h16c1.11 0 2-.89 2-2V8c0-1.11-.89-2-2-2zm-6 0h-4V4h4v2z" />
     </svg>
   );
 }
@@ -54,6 +51,14 @@ function ColorPickerIcon() {
 export default function ProfileCreation() {
   const router = useRouter();
   const [loading, setLoading] = useState(false);
+  const [logoUrl, setLogoUrl] = useState<string | null>(null);
+
+  const handleLogoChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+    const file = e.target.files?.[0];
+    if (file) {
+      setLogoUrl(URL.createObjectURL(file));
+    }
+  };
 
   const [formData, setFormData] = useState({
     firstName: "",
@@ -63,7 +68,8 @@ export default function ProfileCreation() {
     phone: "",
     email: "",
     website: "",
-    cardColor: "#400068",
+    primaryColor: "#d9c7ec",
+    secondaryColor: "#400068",
   });
 
   const validateEmail = (email: string) => /^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email);
@@ -128,7 +134,7 @@ export default function ProfileCreation() {
         phone: formData.phone,
         email: formData.email,
         website: formData.website,
-        card_color: formData.cardColor,
+        card_color: formData.secondaryColor,
         qr_code_url: "/sample-qr.png",
       },
     ]);
@@ -176,80 +182,134 @@ export default function ProfileCreation() {
       <div className="flex flex-1 w-full justify-center gap-10 px-8 items-center">
         {/* Left: Business Card Preview (Reactive) */}
         <div className="flex flex-col items-center justify-center">
-          <div
-            className="flex items-center justify-between w-[600px] h-[345px] px-10 py-10 rounded-lg shadow-lg transition-colors duration-300"
-            style={{ backgroundColor: formData.cardColor }}
-          >
-            <div className="flex flex-col justify-between h-full min-w-0 flex-1 mr-6">
-              <div className="text-white">
-                <p className="text-3xl font-bold leading-normal truncate">
-                  {formData.companyName || "CompanyName"}
-                </p>
-                <p className="text-base font-semibold leading-normal truncate">
-                  {formData.tagline || "OptionalTagline"}
-                </p>
+          <div className="flex flex-col w-[360px] rounded-[28px] bg-white shadow-2xl overflow-hidden transition-colors duration-300">
+            {/* Top accent area with QR + profile overlay */}
+            <div
+              className="relative flex items-center justify-center pt-16 pb-14"
+              style={{ backgroundColor: formData.primaryColor }}
+            >
+              <div className="relative">
+                <Image
+                  src="/sample-qr.png"
+                  alt="Sample QR Code"
+                  width={280}
+                  height={280}
+                  className="rounded-xl bg-white p-2 shadow-md"
+                />
+                {logoUrl && (
+                  <div
+                    className="absolute inset-0 m-auto w-20 h-20 rounded-full border-4 border-white bg-white overflow-hidden flex items-center justify-center"
+                    style={{ boxShadow: "0 2px 8px rgba(0,0,0,0.15)" }}
+                  >
+                    {/* eslint-disable-next-line @next/next/no-img-element */}
+                    <img
+                      src={logoUrl}
+                      alt="Logo"
+                      className="w-full h-full object-cover"
+                    />
+                  </div>
+                )}
               </div>
-              <div className="flex flex-col gap-2">
-                <div className="flex gap-2.5 text-base font-semibold text-white">
-                  <span>{formData.firstName || "FirstName"}</span>
-                  <span>{formData.lastName || "LastName"}</span>
+            </div>
+
+            {/* Name + contact info */}
+            <div className="flex flex-col items-center px-6 pt-6 pb-6">
+              <p className="text-2xl font-bold text-gray-900 text-center break-words w-full leading-tight">
+                {formData.companyName || "Business Name"}
+              </p>
+              <p className="mt-1 text-sm text-gray-500 text-center truncate w-full">
+                {formData.firstName || "FirstName"} {formData.lastName || "LastName"}
+              </p>
+
+              <div className="mt-6 flex flex-col gap-3 w-full">
+                <div className="flex items-center gap-3">
+                  <span
+                    className="shrink-0 w-7 h-7 rounded-full flex items-center justify-center"
+                    style={{ backgroundColor: formData.secondaryColor }}
+                  >
+                    <BriefcaseIcon />
+                  </span>
+                  <span className="text-sm text-gray-700 truncate">
+                    {formData.tagline || "Optional tagline"}
+                  </span>
                 </div>
-                <div className="flex flex-col gap-2">
-                  <div className="flex items-center gap-2.5">
+                <div className="flex items-center gap-3">
+                  <span
+                    className="shrink-0 w-7 h-7 rounded-full flex items-center justify-center"
+                    style={{ backgroundColor: formData.secondaryColor }}
+                  >
                     <PhoneIcon />
-                    <span className="text-sm text-white truncate">
-                      {formData.phone || "pho-nen-umber"}
+                  </span>
+                  <span className="text-sm text-gray-700 truncate">
+                    {formData.phone || "(555) 123-4567"}
+                  </span>
+                </div>
+                <div className="flex items-center gap-3 min-w-0">
+                  <span
+                    className="shrink-0 w-7 h-7 rounded-full flex items-center justify-center"
+                    style={{ backgroundColor: formData.secondaryColor }}
+                  >
+                    <EmailIcon />
+                  </span>
+                  <span className="text-sm text-gray-700 truncate">
+                    {formData.email || "email@address.com"}
+                  </span>
+                </div>
+              </div>
+
+              {/* Links section — placeholder for future swipe-up bio/multi-link feature */}
+              <div className="mt-5 w-full">
+                <p className="text-xs font-bold text-gray-900 mb-3">Links</p>
+                <div className="flex items-center gap-3 min-w-0">
+                  <span
+                    className="shrink-0 w-7 h-7 rounded-full flex items-center justify-center"
+                    style={{ backgroundColor: formData.secondaryColor }}
+                  >
+                    <WebsiteIcon />
+                  </span>
+                  <div className="flex flex-col min-w-0">
+                    <span className="text-sm font-semibold text-gray-900 truncate">
+                      Website
                     </span>
-                  </div>
-                  <div className="flex items-center gap-2.5 min-w-0">
-                    <span className="shrink-0"><EmailIcon /></span>
-                    <span className="text-sm text-white break-all">
-                      {formData.email || "email@address"}
-                    </span>
-                  </div>
-                  <div className="flex items-center gap-2.5 min-w-0">
-                    <span className="shrink-0"><WebsiteIcon /></span>
-                    <span className="text-sm text-white break-all">
+                    <span className="text-xs text-gray-500 truncate">
                       {formData.website || "website.url"}
                     </span>
                   </div>
                 </div>
               </div>
             </div>
-            <Image
-              src="/sample-qr.png"
-              alt="Sample QR Code"
-              width={200}
-              height={200}
-              className="object-cover shrink-0"
-            />
           </div>
         </div>
 
         {/* Right: Form Fields */}
         <div className="flex flex-col gap-4 w-full max-w-[400px] shrink-0">
-          {/* Profile & Logo Picture Upload */}
-          <div className="flex items-center justify-center gap-7 mb-2">
-            <div className="flex flex-col items-center gap-3.5">
-              <div className="w-[100px] h-[100px] rounded-full bg-gray-300 overflow-hidden">
-                <div className="w-full h-full flex items-center justify-center text-gray-500 text-sm">
-                  Profile
-                </div>
-              </div>
-              <span className="text-sm font-semibold text-white">
-                Edit Profile Picture
-              </span>
-            </div>
-            <div className="flex flex-col items-center gap-3.5">
-              <div className="w-[100px] h-[100px] rounded-full bg-gray-300 overflow-hidden">
-                <div className="w-full h-full flex items-center justify-center text-gray-500 text-sm">
-                  Logo
-                </div>
+          {/* Logo Picture Upload */}
+          <div className="flex items-center justify-center mb-2">
+            <label className="flex flex-col items-center gap-3.5 cursor-pointer">
+              <div className="w-[100px] h-[100px] rounded-full bg-gray-300 overflow-hidden hover:opacity-80 transition-opacity">
+                {logoUrl ? (
+                  // eslint-disable-next-line @next/next/no-img-element
+                  <img
+                    src={logoUrl}
+                    alt="Logo preview"
+                    className="w-full h-full object-cover"
+                  />
+                ) : (
+                  <div className="w-full h-full flex items-center justify-center text-gray-500 text-sm">
+                    Logo
+                  </div>
+                )}
               </div>
               <span className="text-sm font-semibold text-white">
                 Edit Logo Picture
               </span>
-            </div>
+              <input
+                type="file"
+                accept="image/*"
+                onChange={handleLogoChange}
+                className="hidden"
+              />
+            </label>
           </div>
 
           <div className="flex gap-2.5 w-full">
@@ -311,21 +371,40 @@ export default function ProfileCreation() {
             className="w-full rounded-lg bg-white px-2.5 py-3 text-lg text-black placeholder:text-black/25 outline-none"
           />
 
-          {/* Color Picker */}
-          <div className="flex items-center justify-center gap-2.5">
-            <label className="cursor-pointer">
-              <ColorPickerIcon />
+          {/* Color Pickers */}
+          <div className="flex items-center justify-center gap-6">
+            <label className="flex flex-col items-center gap-2 cursor-pointer">
+              <div
+                className="w-12 h-12 rounded-full border-2 border-white shadow-md"
+                style={{ backgroundColor: formData.primaryColor }}
+              />
+              <span className="text-sm font-semibold text-white">
+                Primary Color
+              </span>
               <input
                 type="color"
-                name="cardColor"
-                value={formData.cardColor}
+                name="primaryColor"
+                value={formData.primaryColor}
                 onChange={handleChange}
                 className="hidden"
               />
             </label>
-            <span className="text-xl font-bold text-white">
-              Choose Card Color
-            </span>
+            <label className="flex flex-col items-center gap-2 cursor-pointer">
+              <div
+                className="w-12 h-12 rounded-full border-2 border-white shadow-md"
+                style={{ backgroundColor: formData.secondaryColor }}
+              />
+              <span className="text-sm font-semibold text-white">
+                Secondary Color
+              </span>
+              <input
+                type="color"
+                name="secondaryColor"
+                value={formData.secondaryColor}
+                onChange={handleChange}
+                className="hidden"
+              />
+            </label>
           </div>
 
           {/* Generate Button */}
