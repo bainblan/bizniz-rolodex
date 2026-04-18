@@ -1,5 +1,9 @@
+"use client";
+
 import Image from "next/image";
 import Link from "next/link";
+import { useState } from "react";
+import { useRouter } from "next/navigation";
 
 function MenuIcon() {
   return (
@@ -43,6 +47,34 @@ function ArrowDownIcon() {
 }
 
 export default function Home() {
+
+  // create empty state variable to hold entered business name
+  // create setter function to update businessName
+  const [businessName, setBusinessName] = useState("");
+
+  //get Next.js router object
+  const router = useRouter();
+
+    /* handle submit runs when user enters business name and clicks start now.
+       It prevents the browser from refreshing or reloding the page and takes the
+       business name entered, trims whitespace, and uses Next.js router to navegate
+       the user to the /create page.
+       If a business name was entered, it appends the value to the URL as a query
+       parameter, and the create page reads it and fills in the company field
+    */
+    function handleSubmit(e: React.SubmitEvent<HTMLFormElement>) {
+      e.preventDefault(); // prevent default submission behavior
+
+      // trim business name and store in trimmed
+      const trimmed = businessName.trim();
+
+      if (trimmed) { // check if trimmed is not empty
+        router.push(`/create?businessName=${encodeURIComponent(trimmed)}`);
+      } else { // if empty just run plain create url
+        router.push("/create");
+      }
+    }
+
   return (
     <div className="flex flex-col items-center w-full bg-white">
       {/* Hero / Landing Section */}
@@ -85,17 +117,21 @@ export default function Home() {
           <p className="text-2xl text-center text-white">
             Digital Business Cards
           </p>
-          <input
-            type="text"
-            placeholder="Enter Your Business Name"
-            className="w-full rounded-lg bg-white px-2.5 py-4 text-xl text-black placeholder:text-black/25 outline-none"
-          />
-          <Link
-            href="/create"
-            className="w-full rounded-lg bg-[#b06bff] py-[18px] text-xl font-bold text-white hover:bg-[#9a50f0] transition-colors text-center"
-          >
-            Start Now
-          </Link>
+            <form onSubmit={handleSubmit} className="flex flex-col gap-2.5 w-full">
+              <input
+                type="text"
+                placeholder="Enter Your Business Name"
+                value={businessName}
+                onChange={(e) => setBusinessName(e.target.value)}
+                className="w-full rounded-lg bg-white px-2.5 py-4 text-xl text-black placeholder:text-black/25 outline-none"
+              />
+              <button
+                type="submit"
+                className="w-full rounded-lg bg-[#b06bff] py-[18px] text-xl font-bold text-white hover:bg-[#9a50f0] transition-colors text-center"
+              >
+                Start Now
+              </button>
+            </form>
         </div>
 
         {/* Scroll Down Arrow */}

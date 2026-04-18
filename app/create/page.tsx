@@ -3,7 +3,7 @@
 import { useState } from "react";
 import Image from "next/image";
 import Link from "next/link";
-import { useRouter } from "next/navigation";
+import { useRouter, useSearchParams } from "next/navigation";
 import { supabase, isSupabaseConfigured } from "@/app/libs/supabase";
 
 // --- Icons ---
@@ -50,6 +50,9 @@ function BriefcaseIcon() {
 
 export default function ProfileCreation() {
   const router = useRouter();
+  const searchParams = useSearchParams();
+  const initialBusinessName = (searchParams.get("businessName") ?? "").trim();
+
   const [loading, setLoading] = useState(false);
   const [logoUrl, setLogoUrl] = useState<string | null>(null);
 
@@ -63,7 +66,7 @@ export default function ProfileCreation() {
   const [formData, setFormData] = useState({
     firstName: "",
     lastName: "",
-    companyName: "",
+    companyName: initialBusinessName,
     tagline: "",
     phone: "",
     email: "",
