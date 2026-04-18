@@ -5,6 +5,7 @@ import Image from "next/image";
 import Link from "next/link";
 import { useRouter, useSearchParams } from "next/navigation";
 import { supabase, isSupabaseConfigured } from "@/app/libs/supabase";
+import { AuthModal } from "@/app/components/authmodal" // imports the authmodal component to be used when a non logged in or signed up user want to make a new card
 
 // --- Icons ---
 function MenuIcon() {
@@ -49,11 +50,12 @@ function BriefcaseIcon() {
 }
 
 export default function ProfileCreation() {
-  const router = useRouter();
-  const searchParams = useSearchParams();
-  const initialBusinessName = (searchParams.get("businessName") ?? "").trim();
+  const router = useRouter(); // access to Next.js navigation actions
+  const searchParams = useSearchParams(); // reads business name from URL
+  const initialBusinessName = (searchParams.get("businessName") ?? "").trim(); // stores business name or empty string
 
   const [loading, setLoading] = useState(false);
+  const[authModalOpen, setAuthModalOpen] = useState(false); // controls login/signup modal visibility
   const [logoUrl, setLogoUrl] = useState<string | null>(null);
 
   const handleLogoChange = (e: React.ChangeEvent<HTMLInputElement>) => {
@@ -125,6 +127,18 @@ export default function ProfileCreation() {
     if (!isSupabaseConfigured) {
       alert("Supabase is not configured yet. Add your .env.local credentials to save cards.");
       setLoading(false);
+      return;
+    }
+
+    // holds user from supabase auth and an error state
+    const {
+      data: { user },
+      error : userError,
+    } = await supabase.auth.getUser()
+
+    if (userError || !user) {        // if error or user is not logged in
+      setLoading(false);       // do not generate card
+      setAuthModalOpen(true);  // prompt user to log in or sign up
       return;
     }
 
@@ -420,6 +434,13 @@ export default function ProfileCreation() {
           </button>
         </div>
       </div>
+
+      {authModalOpen && (
+          <AuthModal
+            onClose={() => setAuthModalOpen(false)} // close authmodal when user clicks close
+            onAuthed={() => setAuthModalOpen(false)} // close authmodal when user is logged in
+          />
+      )}
     </div>
   );
 }
