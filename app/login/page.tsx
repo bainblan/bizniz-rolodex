@@ -101,8 +101,11 @@ export default function Login() {
             onChange={(e) => setPassword(e.target.value)} // updates password state as user types
             className="w-full rounded-lg bg-white px-2.5 py-4 text-xl text-black placeholder:text-black/25 outline-none"
           />
-          <button className="w-full rounded-lg bg-[#b06bff] py-[18px] text-xl font-bold text-white hover:bg-[#9a50f0] transition-colors">
-            Login
+          <button
+            type="submit" // makes this button submit the login form
+            disabled={loading} // prevents user from clicking multiple times while auth is loading
+            className="w-full rounded-lg bg-[#b06bff] py-[18px] text-xl font-bold text-white hover:bg-[#9a50f0] transition-colors">
+            {loading ? "Logging in..." : "Login"} {/* ternery statement to display logging in while auth loads */}
           </button>
         </form>
       </div>
