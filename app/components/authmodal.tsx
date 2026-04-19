@@ -1,5 +1,3 @@
-"use client";
-
 import {useState } from "react";
 import {supabase} from "@/app/libs/supabase"
 
@@ -71,7 +69,7 @@ export function AuthModal({
                         type="text"
                         placeholder="Username"
                         value={email}
-                        onChange={(e) => setEmail(e.target.value)}
+                        onChange={(e) => setUsername(e.target.value)}
                         className="w-full rounded-lg bg-white px-2.5 py-4 text-xl text-black placeholder:text-black/25 outline-none"
                     />
                 )}
