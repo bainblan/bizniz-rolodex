@@ -3,7 +3,7 @@
 import { useEffect, useState } from "react";
 import Image from "next/image";
 import Link from "next/link";
-import { supabase, isSupabaseConfigured } from "@/app/libs/supabase"; 
+import { supabase, isSupabaseConfigured } from "@/app/libs/supabase";
 
 // --- Icons ---
 
@@ -50,7 +50,7 @@ function SearchIcon() {
 // --- Types ---
 
 interface BusinessCardData {
-  id: string;
+  user_id: string; // user_is of the card owner from auth.users.id
   company_name: string;
   tagline: string;
   first_name: string;
@@ -60,6 +60,12 @@ interface BusinessCardData {
   website: string;
   card_color: string;
   qr_code_url: string;
+}
+
+interface RolodexCardData {
+  rolodex_entry_id: number; // int8 id of rolodex_entry row
+  scanned_user_id: string;  // the user_id of the card owner whose card will be displayed
+  card: BusinessCardData;   // the actual business card to be displayed
 }
 
 // --- Components ---
@@ -108,7 +114,7 @@ function BusinessCard({ card }: { card: BusinessCardData }) {
 }
 
 export default function Rolodex() {
-  const [cards, setCards] = useState<BusinessCardData[]>([]);
+  const [cards, setCards] = useState<RolodexCardData[]>([]);
   const [loading, setLoading] = useState(true);
 
   useEffect(() => {
@@ -118,17 +124,57 @@ export default function Rolodex() {
         return;
       }
 
-      const { data, error } = await supabase
-        .from("business_cards")
-        .select("*")
-        .order("created_at", { ascending: false });
+      const { data : entries, error : entryError } = await supabase
+        .from("rolodex_entries") // pull rolodex entry data from rolodex_entries
+        .select("rolodex_entry_id, scanned_user_id, created_at") // grab relevant columns
+        .order("created_at", { ascending: false }); // order by creation time
 
-      if (error) {
-        console.error("Error fetching cards:", error);
-      } else {
-        setCards(data || []);
+      if (entryError) { // stop and return is supabase can't fetch the user's rolodex entries
+        console.error("Error fetching rolodex entries:", entryError);
+        setLoading(false); // stop loading because theres nothing else to fetch
+        return;
       }
-      setLoading(false);
+
+      // build array of user ids mapped from rolodex_entries data
+      const scannedUserIds = entries?.map((entry) => entry.scanned_user_id) ?? [];
+
+      if (scannedUserIds.length === 0) { // if there array returns empty
+        setCards([]);                    // set cards to empty
+        setLoading(false);         // stop loading because theres nothing else to fetch
+        return;
+      }
+
+      // get business cards that belong to the scanned users
+      const { data : cards, error: cardsError } = await supabase
+        .from("business_cards")          // from the business cards table
+        .select("*")                    // get all collumns for each matching row
+        .in("user_id", scannedUserIds);  // only gets cards whose user id is in scannedUserIds
+
+      if (cardsError) { // if there's an error retreaving the cards, display error to user and stop.
+        console.error("Error fetching business cards:", cardsError);
+        setLoading(false); // stop loading because theres nothing else to fetch
+        return;
+      }
+
+      // create map so each scanned_user_id can find its matching business card
+      const cardsByUserId = new Map((cards ?? []).map((card) => [card.user_id, card]));
+
+      // pair each business card with the entry associated with its scanned_user_id.
+      const mappedCards =
+          entries
+              // find the nusiness card that is associated with the rolodex entry's scanned user
+              ?.map((entry) => {
+                const card = cardsByUserId.get(entry.scanned_user_id);
+
+                return { // return rolodex entry data plus card data
+                  rolodex_entry_id: entry.rolodex_entry_id,
+                  scanned_user_id: entry.scanned_user_id,
+                  card,
+                };
+              })
+
+      setCards(mappedCards); // store mapped cards in React state
+      setLoading(false); // set loading false one data is done loading
     }
 
     fetchCards();
@@ -181,8 +227,8 @@ export default function Rolodex() {
 
       {/* Cards List */}
       <div className="flex flex-col items-center gap-4 mt-6 w-full px-4">
-        {!loading && cards.map((card) => (
-          <BusinessCard key={card.id} card={card} />
+        {!loading && cards.map((entry) => ( // once loading is finished loop through the entries array
+          <BusinessCard key={entry.rolodex_entry_id} card={entry.card} /> // create a business card component with rolodex_entry_id as the key
         ))}
       </div>
     </div>

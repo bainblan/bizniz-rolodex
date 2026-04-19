@@ -144,6 +144,7 @@ export default function ProfileCreation() {
 
     const { error } = await supabase.from("business_cards").insert([
       {
+        user_id: user.id,
         first_name: formData.firstName,
         last_name: formData.lastName,
         company_name: formData.companyName,

@@ -1,4 +1,10 @@
+"use client" // runs this page in browser to handle form submits
+
 import Link from "next/link";
+import { useState } from "react"; // stores login form values
+import { useRouter } from "next/navigation"; // lets page redirect after successful login
+import { supabase, isSupabaseConfigured } from "@/app/libs/supabase"; // imports supabase auth client and config check
+
 
 function MenuIcon() {
   return (
@@ -9,6 +15,38 @@ function MenuIcon() {
 }
 
 export default function Login() {
+  const router = useRouter(); // access to router.push for redirecting after login
+
+  const [email, setEmail] = useState(""); // stores email typed by user
+  const [password, setPassword] = useState(""); // stores password typed by user
+  const [errorMessage, setErrorMessage] = useState(""); // stores potential login errors
+  const [loading, setLoading] = useState(false); // tracks if login request is currently running
+
+  async function handleLogin(e: React.SubmitEvent<HTMLFormElement>) {
+    e.preventDefault(); // prevents browser from refreshing page when the form submits
+    setErrorMessage(""); // clear any error message
+
+    if (!isSupabaseConfigured) { // check is supabase configured properly
+      setErrorMessage("Supabase is not configured yet");
+      return;
+    }
+
+    setLoading(true); // disables the button and shows loading label
+
+    const { error } = await supabase.auth.signInWithPassword({
+      email, // sends email to supabase auth
+      password, // sends password to supabase auth
+    });
+
+    if (error) { // checks for potential auth errors
+      setErrorMessage(error.message);
+      setLoading(false);
+      return;
+    }
+
+    router.push("/rolodex"); // reroutes user to rolodex page after successful auth
+  }
+
   return (
     <div className="flex flex-col items-center min-h-screen w-full bg-[#4a4a4a]">
       {/* Navbar */}
@@ -43,24 +81,30 @@ export default function Login() {
 
       {/* Login Form */}
       <div className="flex flex-1 items-center justify-center w-full px-4">
-        <div className="flex flex-col gap-2.5 items-center w-full max-w-[393px]">
+        <form // I changed this to a form that can collect and submit user entered information
+          onSubmit={handleLogin} // when user submits it sends handle login
+          className="flex flex-col gap-2.5 items-center w-full max-w-[393px]">
           <h1 className="text-[32px] font-bold text-center text-white w-full">
             Login to <span className="italic">BIZNIZ</span>
           </h1>
           <input
-            type="text"
-            placeholder="Username"
+            type="email" // uses browser email behavior
+            placeholder="Email Address" // placeholder text
+            value={email} // connect user input to react state
+            onChange={(e) => setEmail(e.target.value)} // updates email state as user types
             className="w-full rounded-lg bg-white px-2.5 py-4 text-xl text-black placeholder:text-black/25 outline-none"
           />
           <input
-            type="password"
-            placeholder="Password"
+            type="password" // uses browser password behavior
+            placeholder="Password" // placeholder text
+            value={password} // connect user input to react state
+            onChange={(e) => setPassword(e.target.value)} // updates password state as user types
             className="w-full rounded-lg bg-white px-2.5 py-4 text-xl text-black placeholder:text-black/25 outline-none"
           />
           <button className="w-full rounded-lg bg-[#b06bff] py-[18px] text-xl font-bold text-white hover:bg-[#9a50f0] transition-colors">
             Login
           </button>
-        </div>
+        </form>
       </div>
     </div>
   );
