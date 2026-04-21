@@ -2,24 +2,12 @@
 
 import { Suspense, useState } from "react";
 import Image from "next/image";
-import Link from "next/link";
 import { useRouter, useSearchParams } from "next/navigation";
 import { supabase, isSupabaseConfigured } from "@/app/libs/supabase";
 import { AuthModal } from "@/app/components/authmodal" // imports the authmodal component to be used when a non logged in or signed up user want to make a new card
+import { Navbar } from "@/app/components/navbar";
 
 // --- Icons ---
-function MenuIcon() {
-  return (
-    <svg width="40" height="40" viewBox="0 0 24 24" fill="none">
-      <path
-        d="M3 6h18M3 12h18M3 18h18"
-        stroke="white"
-        strokeWidth="2"
-        strokeLinecap="round"
-      />
-    </svg>
-  );
-}
 function PhoneIcon() {
   return (
     <svg width="16" height="16" viewBox="0 0 24 24" fill="white">
@@ -197,32 +185,7 @@ function ProfileCreation() {
   return (
     <div className="flex flex-col items-center gap-14 w-full min-h-screen bg-[#4a4a4a] pb-8">
       {/* Navbar */}
-      <nav className="flex items-center justify-between w-full px-2.5">
-        <Link href="/" className="flex items-center gap-3 px-1 py-1.5">
-          <MenuIcon />
-          <span className="text-2xl font-bold italic text-white">BIZNIZ</span>
-        </Link>
-        <div className="flex items-center gap-2">
-          <Link
-            href="/rolodex"
-            className="rounded-lg border border-white bg-[#b06bff] px-6 py-1.5 text-base font-semibold text-white hover:bg-[#9a50f0] transition-colors"
-          >
-            Rolodex
-          </Link>
-          <Link
-            href="/signup"
-            className="rounded-lg border border-white bg-[#b06bff] px-6 py-1.5 text-base font-semibold text-white hover:bg-[#9a50f0] transition-colors"
-          >
-            Signup
-          </Link>
-          <Link
-            href="/login"
-            className="rounded-lg border border-white bg-[#b06bff] px-6 py-1.5 text-base font-semibold text-white hover:bg-[#9a50f0] transition-colors"
-          >
-            Login
-          </Link>
-        </div>
-      </nav>
+      <Navbar />
 
       {/* Main Content: Card Preview (left) + Form (right) */}
       <div className="flex flex-1 w-full justify-center gap-10 px-8 items-center">

@@ -1,41 +1,10 @@
 "use client";
 
-import Image from "next/image";
 import Link from "next/link";
 import { useState } from "react";
 import { useRouter } from "next/navigation";
-
-function MenuIcon() {
-  return (
-    <svg width="40" height="40" viewBox="0 0 24 24" fill="none">
-      <path d="M3 6h18M3 12h18M3 18h18" stroke="white" strokeWidth="2" strokeLinecap="round" />
-    </svg>
-  );
-}
-
-function PhoneIcon() {
-  return (
-    <svg width="16" height="16" viewBox="0 0 24 24" fill="white">
-      <path d="M6.62 10.79a15.053 15.053 0 006.59 6.59l2.2-2.2a1.003 1.003 0 011.01-.24c1.12.37 2.33.57 3.57.57.55 0 1 .45 1 1V20c0 .55-.45 1-1 1-9.39 0-17-7.61-17-17 0-.55.45-1 1-1h3.5c.55 0 1 .45 1 1 0 1.25.2 2.45.57 3.57.1.31.03.66-.25 1.02l-2.2 2.2z" />
-    </svg>
-  );
-}
-
-function EmailIcon() {
-  return (
-    <svg width="16" height="16" viewBox="0 0 24 24" fill="white">
-      <path d="M20 4H4c-1.1 0-2 .9-2 2v12c0 1.1.9 2 2 2h16c1.1 0 2-.9 2-2V6c0-1.1-.9-2-2-2zm0 4l-8 5-8-5V6l8 5 8-5v2z" />
-    </svg>
-  );
-}
-
-function WebsiteIcon() {
-  return (
-    <svg width="16" height="16" viewBox="0 0 24 24" fill="white">
-      <path d="M12 2C6.48 2 2 6.48 2 12s4.48 10 10 10 10-4.48 10-10S17.52 2 12 2zM4 12c0-.61.08-1.21.21-1.78L8.99 15v1c0 1.1.9 2 2 2v1.93C7.06 19.43 4 16.07 4 12zm13.89 5.4c-.26-.81-1-1.4-1.9-1.4h-1v-3c0-.55-.45-1-1-1H8v-2h2c.55 0 1-.45 1-1V7h2c1.1 0 2-.9 2-2v-.41C18.92 5.98 20 8.82 20 12c0 2.08-.67 4-1.81 5.56l-.3-.16z" />
-    </svg>
-  );
-}
+import { Navbar } from "@/app/components/navbar";
+import { BiznizCard } from "@/app/components/biznizcard";
 
 function ArrowDownIcon() {
   return (
@@ -80,34 +49,7 @@ export default function Home() {
       {/* Hero / Landing Section */}
       <section className="flex flex-col items-center justify-between w-full min-h-screen bg-[#4a4a4a] overflow-hidden">
         {/* Navbar */}
-        <nav className="flex items-center justify-between w-full px-2.5">
-          <div className="flex items-center gap-3 px-1 py-1.5">
-            <MenuIcon />
-            <span className="text-2xl font-bold italic text-white">
-              BIZNIZ
-            </span>
-          </div>
-          <div className="flex items-center gap-2">
-            <Link
-              href="/rolodex"
-              className="rounded-lg border border-white bg-[#b06bff] px-6 py-1.5 text-base font-semibold text-white hover:bg-[#9a50f0] transition-colors"
-            >
-              Rolodex
-            </Link>
-            <Link
-              href="/signup"
-              className="rounded-lg border border-white bg-[#b06bff] px-6 py-1.5 text-base font-semibold text-white hover:bg-[#9a50f0] transition-colors"
-            >
-              Signup
-            </Link>
-            <Link
-              href="/login"
-              className="rounded-lg border border-white bg-[#b06bff] px-6 py-1.5 text-base font-semibold text-white hover:bg-[#9a50f0] transition-colors"
-            >
-              Login
-            </Link>
-          </div>
-        </nav>
+        <Navbar />
 
         {/* Hero Content */}
         <div className="flex flex-col items-center gap-2.5 w-full max-w-[373px] px-4">
@@ -178,41 +120,20 @@ export default function Home() {
         </div>
 
         {/* Example Business Card */}
-        <div className="flex items-center justify-between w-[500px] h-[285px] bg-[#400068] px-8 py-8 rounded-xl shadow-xl">
-          <div className="flex flex-col justify-between h-full w-[200px]">
-            <div className="text-white">
-              <p className="text-2xl font-bold leading-normal">CompanyName</p>
-              <p className="text-sm font-semibold leading-normal">OptionalTagline</p>
-            </div>
-            <div className="flex flex-col gap-2">
-              <div className="flex gap-2.5 text-sm font-semibold text-white">
-                <span>FirstName</span>
-                <span>LastName</span>
-              </div>
-              <div className="flex flex-col gap-2">
-                <div className="flex items-center gap-2.5">
-                  <PhoneIcon />
-                  <span className="text-sm text-white">pho-nen-umber</span>
-                </div>
-                <div className="flex items-center gap-2.5">
-                  <EmailIcon />
-                  <span className="text-sm text-white">email@address</span>
-                </div>
-                <div className="flex items-center gap-2.5">
-                  <WebsiteIcon />
-                  <span className="text-sm text-white">website.url</span>
-                </div>
-              </div>
-            </div>
-          </div>
-          <Image
-            src="/sample-qr.png"
-            alt="Sample QR Code"
-            width={180}
-            height={180}
-            className="object-cover"
-          />
-        </div>
+        <BiznizCard
+          card={{
+            company_name: "CompanyName",
+            tagline: "OptionalTagline",
+            first_name: "FirstName",
+            last_name: "LastName",
+            phone: "pho-nen-umber",
+            email: "email@address",
+            website: "website.url",
+            card_color: "#400068",
+            primary_color: "#d9c7ec",
+            qr_code_url: "https://bizniz.example",
+          }}
+        />
 
         {/* Description */}
         <p className="w-full max-w-[550px] text-lg font-medium text-black/60 text-center px-4">

@@ -2,18 +2,11 @@
 
 import { useEffect, useState } from "react";
 import { StyledQR } from "@/app/components/styledqr";
-import Link from "next/link";
+import { Navbar } from "@/app/components/navbar";
+import { BiznizCard } from "@/app/components/biznizcard";
 import { supabase, isSupabaseConfigured } from "@/app/libs/supabase";
 
 // --- Icons ---
-
-function MenuIcon() {
-  return (
-    <svg width="40" height="40" viewBox="0 0 24 24" fill="none">
-      <path d="M3 6h18M3 12h18M3 18h18" stroke="white" strokeWidth="2" strokeLinecap="round" />
-    </svg>
-  );
-}
 
 function PhoneIcon() {
   return (
@@ -59,6 +52,7 @@ interface BusinessCardData {
   email: string;
   website: string;
   card_color: string;
+  primary_color?: string; // top-panel color for the two-tone demo card layout
   qr_code_url: string;
 }
 
@@ -67,6 +61,78 @@ interface RolodexCardData {
   scanned_user_id: string;  // the user_id of the card owner whose card will be displayed
   card: BusinessCardData;   // the actual business card to be displayed
 }
+
+// Shown on the rolodex page to signed-out visitors so the page has content.
+const DEMO_CARDS: RolodexCardData[] = [
+  {
+    rolodex_entry_id: -1,
+    scanned_user_id: "demo-acme",
+    card: {
+      user_id: "demo-acme",
+      company_name: "Acme Design Co",
+      tagline: "Brand & product design",
+      first_name: "Jane",
+      last_name: "Doe",
+      phone: "(555) 123-4567",
+      email: "jane@acmedesign.co",
+      website: "acmedesign.co",
+      card_color: "#400068",
+      primary_color: "#d9c7ec",
+      qr_code_url: "https://bizniz.example/rolodex?username=janedoe",
+    },
+  },
+  {
+    rolodex_entry_id: -2,
+    scanned_user_id: "demo-pixel",
+    card: {
+      user_id: "demo-pixel",
+      company_name: "Pixel Forge",
+      tagline: "Indie game studio",
+      first_name: "Mike",
+      last_name: "Chen",
+      phone: "(555) 246-8013",
+      email: "mike@pixelforge.io",
+      website: "pixelforge.io",
+      card_color: "#1e3a8a",
+      primary_color: "#c7d4ec",
+      qr_code_url: "https://bizniz.example/rolodex?username=mikechen",
+    },
+  },
+  {
+    rolodex_entry_id: -3,
+    scanned_user_id: "demo-greenbean",
+    card: {
+      user_id: "demo-greenbean",
+      company_name: "GreenBean Coffee",
+      tagline: "Small-batch roasters",
+      first_name: "Sarah",
+      last_name: "Johnson",
+      phone: "(555) 369-2580",
+      email: "sarah@greenbean.co",
+      website: "greenbean.co",
+      card_color: "#1f5f3a",
+      primary_color: "#c7ecd4",
+      qr_code_url: "https://bizniz.example/rolodex?username=sarahj",
+    },
+  },
+  {
+    rolodex_entry_id: -4,
+    scanned_user_id: "demo-quantum",
+    card: {
+      user_id: "demo-quantum",
+      company_name: "Quantum Labs",
+      tagline: "AI research consultancy",
+      first_name: "Alex",
+      last_name: "Rivera",
+      phone: "(555) 482-7391",
+      email: "alex@quantumlabs.ai",
+      website: "quantumlabs.ai",
+      card_color: "#7f1d1d",
+      primary_color: "#ecc7c7",
+      qr_code_url: "https://bizniz.example/rolodex?username=alexr",
+    },
+  },
+];
 
 // --- Components ---
 
@@ -110,15 +176,34 @@ function BusinessCard({ card }: { card: BusinessCardData }) {
 export default function Rolodex() {
   const [cards, setCards] = useState<RolodexCardData[]>([]);
   const [loading, setLoading] = useState(true);
+  const [isDemo, setIsDemo] = useState(false);
 
   useEffect(() => {
     async function fetchCards() {
+      const scannedUsername = new URLSearchParams(window.location.search).get("username");
+
+      // Signed-out visitors (no scanned-card link) see demo cards instead of an empty page.
+      if (!scannedUsername) {
+        if (!isSupabaseConfigured) {
+          setCards(DEMO_CARDS);
+          setIsDemo(true);
+          setLoading(false);
+          return;
+        }
+
+        const { data: { session } } = await supabase.auth.getSession();
+        if (!session) {
+          setCards(DEMO_CARDS);
+          setIsDemo(true);
+          setLoading(false);
+          return;
+        }
+      }
+
       if (!isSupabaseConfigured) {
         setLoading(false);
         return;
       }
-
-      const scannedUsername = new URLSearchParams(window.location.search).get("username");
 
       if (scannedUsername) {
         const profileResult = await supabase
@@ -215,38 +300,22 @@ export default function Rolodex() {
     fetchCards();
   }, []);
 
-  const buttonStyles = "rounded-lg border border-white bg-[#b06bff] px-6 py-1.5 text-base font-semibold text-white hover:bg-[#9a50f0] transition-colors";
-
   return (
     <div className="flex flex-col items-center w-full min-h-screen bg-[#4a4a4a] pb-8">
-      {/* Navbar - Restored Original Styling */}
-      <nav className="flex items-center justify-between w-full px-2.5">
-        <Link href="/" className="flex items-center gap-3 px-1 py-1.5">
-          <MenuIcon />
-          <span className="text-2xl font-bold italic text-white">
-            BIZNIZ
-          </span>
-        </Link>
-        <div className="flex items-center gap-2">
-          <Link href="/rolodex" className={buttonStyles}>
-            Rolodex
-          </Link>
-          <Link href="/signup" className={buttonStyles}>
-            Signup
-          </Link>
-          <Link href="/login" className={buttonStyles}>
-            Login
-          </Link>
-        </div>
-      </nav>
+      {/* Navbar */}
+      <Navbar />
 
       {/* Page Header - Restored Centering and Spacing */}
       <div className="flex flex-col items-center gap-2.5 w-full max-w-[393px] px-4 mt-8">
         <h1 className="text-[32px] font-bold text-center text-white">
-          Your <span className="italic">Rolodex</span>
+          {isDemo ? <span className="italic">Rolodex</span> : <>Your <span className="italic">Rolodex</span></>}
         </h1>
         <p className="text-base text-center text-white/60">
-          {loading ? "Loading..." : `${cards.length} cards collected`}
+          {loading
+            ? "Loading..."
+            : isDemo
+              ? "Build a searchable Rolodex of business cards, contacts, and opportunities."
+              : `${cards.length} cards collected`}
         </p>
 
         {/* Search Bar - Restored Original Style */}
@@ -262,9 +331,13 @@ export default function Rolodex() {
 
       {/* Cards List */}
       <div className="flex flex-col items-center gap-4 mt-6 w-full px-4">
-        {!loading && cards.map((entry) => ( // once loading is finished loop through the entries array
-          <BusinessCard key={entry.rolodex_entry_id} card={entry.card} /> // create a business card component with rolodex_entry_id as the key
-        ))}
+        {!loading && cards.map((entry) => // once loading is finished loop through the entries array
+          isDemo ? (
+            <BiznizCard key={entry.rolodex_entry_id} card={entry.card} />
+          ) : (
+            <BusinessCard key={entry.rolodex_entry_id} card={entry.card} /> // create a business card component with rolodex_entry_id as the key
+          )
+        )}
       </div>
     </div>
   );

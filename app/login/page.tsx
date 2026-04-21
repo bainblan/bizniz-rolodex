@@ -1,18 +1,9 @@
 "use client" // runs this page in browser to handle form submits
 
-import Link from "next/link";
 import { useState } from "react"; // stores login form values
 import { useRouter } from "next/navigation"; // lets page redirect after successful login
 import { supabase, isSupabaseConfigured } from "@/app/libs/supabase"; // imports supabase auth client and config check
-
-
-function MenuIcon() {
-  return (
-    <svg width="40" height="40" viewBox="0 0 24 24" fill="none">
-      <path d="M3 6h18M3 12h18M3 18h18" stroke="white" strokeWidth="2" strokeLinecap="round" />
-    </svg>
-  );
-}
+import { Navbar } from "@/app/components/navbar";
 
 export default function Login() {
   const router = useRouter(); // access to router.push for redirecting after login
@@ -50,34 +41,7 @@ export default function Login() {
   return (
     <div className="flex flex-col items-center min-h-screen w-full bg-[#4a4a4a]">
       {/* Navbar */}
-      <nav className="flex items-center justify-between w-full px-2.5">
-        <Link href="/" className="flex items-center gap-3 px-1 py-1.5">
-          <MenuIcon />
-          <span className="text-2xl font-bold italic text-white">
-            BIZNIZ
-          </span>
-        </Link>
-        <div className="flex items-center gap-2">
-          <Link
-            href="/rolodex"
-            className="rounded-lg border border-white bg-[#b06bff] px-6 py-1.5 text-base font-semibold text-white hover:bg-[#9a50f0] transition-colors"
-          >
-            Rolodex
-          </Link>
-          <Link
-            href="/signup"
-            className="rounded-lg border border-white bg-[#b06bff] px-6 py-1.5 text-base font-semibold text-white hover:bg-[#9a50f0] transition-colors"
-          >
-            Signup
-          </Link>
-          <Link
-            href="/login"
-            className="rounded-lg border border-white bg-[#b06bff] px-6 py-1.5 text-base font-semibold text-white hover:bg-[#9a50f0] transition-colors"
-          >
-            Login
-          </Link>
-        </div>
-      </nav>
+      <Navbar />
 
       {/* Login Form */}
       <div className="flex flex-1 items-center justify-center w-full px-4">
