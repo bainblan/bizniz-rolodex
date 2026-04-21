@@ -1,11 +1,22 @@
 "use client";
 
-import { Suspense, useState } from "react";
+import { Suspense, useEffect, useState } from "react";
 import Image from "next/image";
 import { useRouter, useSearchParams } from "next/navigation";
 import { supabase, isSupabaseConfigured } from "@/app/libs/supabase";
 import { AuthModal } from "@/app/components/authmodal" // imports the authmodal component to be used when a non logged in or signed up user want to make a new card
 import { Navbar } from "@/app/components/navbar";
+
+interface ExistingCard {
+  first_name: string;
+  last_name: string;
+  company_name: string;
+  tagline: string;
+  phone: string;
+  email: string;
+  website: string;
+  card_color: string;
+}
 
 // --- Icons ---
 function PhoneIcon() {
@@ -46,6 +57,8 @@ function ProfileCreation() {
   const [authModalOpen, setAuthModalOpen] = useState(false); // controls login/signup modal visibility
   const [logoUrl, setLogoUrl] = useState<string | null>(null);
   const [errorMessage, setErrorMessage] = useState(""); // stores potential error message to display
+  const [existingCard, setExistingCard] = useState<ExistingCard | null>(null);
+  const editMode = existingCard !== null;
 
   const handleLogoChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     const file = e.target.files?.[0];
@@ -65,6 +78,38 @@ function ProfileCreation() {
     primaryColor: "#d9c7ec",
     secondaryColor: "#400068",
   });
+
+  useEffect(() => {
+    if (!isSupabaseConfigured) return;
+
+    async function loadExistingCard() {
+      const { data: { user } } = await supabase.auth.getUser();
+      if (!user) return;
+
+      const { data, error } = await supabase
+        .from("business_cards")
+        .select("first_name, last_name, company_name, tagline, phone, email, website, card_color")
+        .eq("user_id", user.id)
+        .maybeSingle();
+
+      if (error) {
+        console.error("Error loading existing card:", error);
+        return;
+      }
+      if (!data) return;
+
+      setExistingCard(data);
+      // Leave text fields empty so placeholders display the existing values.
+      // Pre-fill the secondary color so the picker swatch shows the current color.
+      setFormData((prev) => ({
+        ...prev,
+        companyName: "",
+        secondaryColor: data.card_color ?? prev.secondaryColor,
+      }));
+    }
+
+    loadExistingCard();
+  }, []);
 
   const validateEmail = (email: string) => /^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email);
   const validateWebsite = (url: string) => {
@@ -101,11 +146,21 @@ function ProfileCreation() {
     if (tagline.length > 20) {
       return alert("Tagline must be 20 characters or less.");
     }
-    if (!validateEmail(email)) {
-      return alert("Please enter a valid email address.");
-    }
-    if (phone.length < 14) {
-      return alert("Please enter a full phone number: (XXX) XXX-XXXX");
+    // In edit mode, only validate fields the user actually touched.
+    if (editMode) {
+      if (email && !validateEmail(email)) {
+        return alert("Please enter a valid email address.");
+      }
+      if (phone && phone.length < 14) {
+        return alert("Please enter a full phone number: (XXX) XXX-XXXX");
+      }
+    } else {
+      if (!validateEmail(email)) {
+        return alert("Please enter a valid email address.");
+      }
+      if (phone.length < 14) {
+        return alert("Please enter a full phone number: (XXX) XXX-XXXX");
+      }
     }
     if (website && !validateWebsite(website)) {
       return alert("Please enter a valid website URL.");
@@ -129,6 +184,43 @@ function ProfileCreation() {
     if (userError || !user) {        // if error or user is not logged in
       setLoading(false);       // do not generate card
       setAuthModalOpen(true);  // prompt user to log in or sign up
+      return;
+    }
+
+    if (editMode && existingCard) {
+      // Build an update payload with only the fields the user changed.
+      const updates: Partial<ExistingCard> = {};
+      if (formData.firstName) updates.first_name = formData.firstName;
+      if (formData.lastName) updates.last_name = formData.lastName;
+      if (formData.companyName) updates.company_name = formData.companyName;
+      if (formData.tagline) updates.tagline = formData.tagline;
+      if (formData.phone) updates.phone = formData.phone;
+      if (formData.email) updates.email = formData.email;
+      if (formData.website) updates.website = formData.website;
+      if (formData.secondaryColor !== existingCard.card_color) {
+        updates.card_color = formData.secondaryColor;
+      }
+
+      if (Object.keys(updates).length === 0) {
+        alert("No changes to save.");
+        setLoading(false);
+        return;
+      }
+
+      const updateResult = await supabase
+        .from("business_cards")
+        .update(updates)
+        .eq("user_id", user.id);
+
+      if (updateResult.error) {
+        alert("Error updating card: " + updateResult.error.message);
+        setLoading(false);
+        return;
+      }
+
+      alert("Card Updated Successfully!");
+      router.push("/rolodex");
+      setLoading(false);
       return;
     }
 
@@ -224,10 +316,11 @@ function ProfileCreation() {
             {/* Name + contact info */}
             <div className="flex flex-col items-center px-6 pt-6 pb-6">
               <p className="text-2xl font-bold text-gray-900 text-center break-words w-full leading-tight">
-                {formData.companyName || "Business Name"}
+                {formData.companyName || existingCard?.company_name || "Business Name"}
               </p>
               <p className="mt-1 text-sm text-gray-500 text-center truncate w-full">
-                {formData.firstName || "FirstName"} {formData.lastName || "LastName"}
+                {formData.firstName || existingCard?.first_name || "FirstName"}{" "}
+                {formData.lastName || existingCard?.last_name || "LastName"}
               </p>
 
               <div className="mt-6 flex flex-col gap-3 w-full">
@@ -239,7 +332,7 @@ function ProfileCreation() {
                     <BriefcaseIcon />
                   </span>
                   <span className="text-sm text-gray-700 truncate">
-                    {formData.tagline || "Optional tagline"}
+                    {formData.tagline || existingCard?.tagline || "Optional tagline"}
                   </span>
                 </div>
                 <div className="flex items-center gap-3">
@@ -250,7 +343,7 @@ function ProfileCreation() {
                     <PhoneIcon />
                   </span>
                   <span className="text-sm text-gray-700 truncate">
-                    {formData.phone || "(555) 123-4567"}
+                    {formData.phone || existingCard?.phone || "(555) 123-4567"}
                   </span>
                 </div>
                 <div className="flex items-center gap-3 min-w-0">
@@ -261,7 +354,7 @@ function ProfileCreation() {
                     <EmailIcon />
                   </span>
                   <span className="text-sm text-gray-700 truncate">
-                    {formData.email || "email@address.com"}
+                    {formData.email || existingCard?.email || "email@address.com"}
                   </span>
                 </div>
               </div>
@@ -281,7 +374,7 @@ function ProfileCreation() {
                       Website
                     </span>
                     <span className="text-xs text-gray-500 truncate">
-                      {formData.website || "website.url"}
+                      {formData.website || existingCard?.website || "website.url"}
                     </span>
                   </div>
                 </div>
@@ -325,7 +418,7 @@ function ProfileCreation() {
             <input
               type="text"
               name="firstName"
-              placeholder="FirstName"
+              placeholder={existingCard?.first_name || "FirstName"}
               value={formData.firstName}
               onChange={handleChange}
               className="flex-1 min-w-0 rounded-lg bg-white px-2.5 py-3 text-lg text-black placeholder:text-black/25 outline-none"
@@ -333,7 +426,7 @@ function ProfileCreation() {
             <input
               type="text"
               name="lastName"
-              placeholder="LastName"
+              placeholder={existingCard?.last_name || "LastName"}
               value={formData.lastName}
               onChange={handleChange}
               className="flex-1 min-w-0 rounded-lg bg-white px-2.5 py-3 text-lg text-black placeholder:text-black/25 outline-none"
@@ -342,7 +435,7 @@ function ProfileCreation() {
           <input
             type="text"
             name="companyName"
-            placeholder="Business Name"
+            placeholder={existingCard?.company_name || "Business Name"}
             value={formData.companyName}
             onChange={handleChange}
             className="w-full rounded-lg bg-white px-2.5 py-3 text-lg text-black placeholder:text-black/25 outline-none"
@@ -350,7 +443,7 @@ function ProfileCreation() {
           <input
             type="text"
             name="tagline"
-            placeholder="Tagline"
+            placeholder={existingCard?.tagline || "Tagline"}
             value={formData.tagline}
             onChange={handleChange}
             className="w-full rounded-lg bg-white px-2.5 py-3 text-lg text-black placeholder:text-black/25 outline-none"
@@ -358,7 +451,7 @@ function ProfileCreation() {
           <input
             type="text"
             name="email"
-            placeholder="Email Address"
+            placeholder={existingCard?.email || "Email Address"}
             value={formData.email}
             onChange={handleChange}
             className="w-full rounded-lg bg-white px-2.5 py-3 text-lg text-black placeholder:text-black/25 outline-none"
@@ -366,7 +459,7 @@ function ProfileCreation() {
           <input
             type="tel"
             name="phone"
-            placeholder="Phone Number"
+            placeholder={existingCard?.phone || "Phone Number"}
             value={formData.phone}
             onChange={handleChange}
             className="w-full rounded-lg bg-white px-2.5 py-3 text-lg text-black placeholder:text-black/25 outline-none"
@@ -374,7 +467,7 @@ function ProfileCreation() {
           <input
             type="url"
             name="website"
-            placeholder="Website URL"
+            placeholder={existingCard?.website || "Website URL"}
             value={formData.website}
             onChange={handleChange}
             className="w-full rounded-lg bg-white px-2.5 py-3 text-lg text-black placeholder:text-black/25 outline-none"
@@ -427,7 +520,9 @@ function ProfileCreation() {
             disabled={loading}
             className="w-full rounded-lg bg-[#b06bff] py-[18px] text-xl font-bold text-white hover:bg-[#9a50f0] transition-colors disabled:opacity-50"
           >
-            {loading ? "Generating..." : "Generate"}
+            {loading
+              ? (editMode ? "Updating..." : "Generating...")
+              : (editMode ? "Update Card" : "Generate")}
           </button>
         </div>
       </div>
