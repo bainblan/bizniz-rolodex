@@ -1,6 +1,6 @@
 "use client";
 
-import { useState } from "react";
+import { Suspense, useState } from "react";
 import Image from "next/image";
 import Link from "next/link";
 import { useRouter, useSearchParams } from "next/navigation";
@@ -49,14 +49,15 @@ function BriefcaseIcon() {
   );
 }
 
-export default function ProfileCreation() {
+function ProfileCreation() {
   const router = useRouter(); // access to Next.js navigation actions
   const searchParams = useSearchParams(); // reads business name from URL
   const initialBusinessName = (searchParams.get("businessName") ?? "").trim(); // stores business name or empty string
 
   const [loading, setLoading] = useState(false);
-  const[authModalOpen, setAuthModalOpen] = useState(false); // controls login/signup modal visibility
+  const [authModalOpen, setAuthModalOpen] = useState(false); // controls login/signup modal visibility
   const [logoUrl, setLogoUrl] = useState<string | null>(null);
+  const [errorMessage, setErrorMessage] = useState(""); // stores potential error message to display
 
   const handleLogoChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     const file = e.target.files?.[0];
@@ -122,6 +123,7 @@ export default function ProfileCreation() {
       return alert("Please enter a valid website URL.");
     }
 
+    setErrorMessage("");
     setLoading(true);
 
     if (!isSupabaseConfigured) {
@@ -142,7 +144,33 @@ export default function ProfileCreation() {
       return;
     }
 
-    const { error } = await supabase.from("business_cards").insert([
+    const getProfile = await supabase
+      .from("profiles")
+      .select("username")
+      .eq("user_id", user.id)
+      .single();
+
+    if (getProfile.error) {
+      setErrorMessage("Error loading profile " + getProfile.error.message);
+      setLoading(false);
+      return;
+    }
+
+    const username = getProfile.data.username;
+    const qrCodeUrl = `${window.location.origin}/card/${username}`;
+
+    const updateProfile = await supabase
+        .from("profiles")
+        .update({ profile_url: qrCodeUrl })
+        .eq("user_id", user.id);
+
+    if (updateProfile.error) {
+      setErrorMessage("Error updating profile " + updateProfile.error.message);
+      setLoading(false);
+      return;
+    }
+
+    const updateCard = await supabase.from("business_cards").insert([
       {
         user_id: user.id,
         first_name: formData.firstName,
@@ -153,12 +181,12 @@ export default function ProfileCreation() {
         email: formData.email,
         website: formData.website,
         card_color: formData.secondaryColor,
-        qr_code_url: "/sample-qr.png",
+        qr_code_url: qrCodeUrl,
       },
     ]);
 
-    if (error) {
-      alert("Error saving card: " + error.message);
+    if (updateCard.error) {
+      alert("Error saving card: " + updateCard.error.message);
     } else {
       alert("Card Generated Successfully!");
       router.push("/rolodex");
@@ -424,7 +452,12 @@ export default function ProfileCreation() {
               />
             </label>
           </div>
-
+          {errorMessage && (
+              /* makes error message full width of parent, rounded borders, background is white with 10 percent transparency,
+              adds 3 horizontal padding, adds 2 vertical padding, text is small, text is slightly bold, text is light red*/
+              <p className="w-full rounded-lg bg-white/10 px-3 py-2 text-sm font-medium text-red-200">
+                {errorMessage} </p> // displays error message to user
+          )}
           {/* Generate Button */}
           <button
             onClick={handleGenerate}
@@ -443,5 +476,19 @@ export default function ProfileCreation() {
           />
       )}
     </div>
+  );
+}
+
+export default function ProfileCreationExport() {
+  return (
+      <Suspense
+          fallback={
+            <div className="flex min-h-screen items-center justify-center bg-[#4a4a4a] text-white">
+              Loading...
+            </div>
+          }
+      >
+        <ProfileCreation />
+      </Suspense>
   );
 }

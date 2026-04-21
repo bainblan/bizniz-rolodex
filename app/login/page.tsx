@@ -101,6 +101,12 @@ export default function Login() {
             onChange={(e) => setPassword(e.target.value)} // updates password state as user types
             className="w-full rounded-lg bg-white px-2.5 py-4 text-xl text-black placeholder:text-black/25 outline-none"
           />
+          {errorMessage && (
+              /* makes error message full width of parent, rounded borders, background is white with 10 percent transparency,
+              adds 3 horizontal padding, adds 2 vertical padding, text is small, text is slightly bold, text is light red*/
+              <p className="w-full rounded-lg bg-white/10 px-3 py-2 text-sm font-medium text-red-200">
+                {errorMessage} </p> // displays error message to user
+          )}
           <button
             type="submit" // makes this button submit the login form
             disabled={loading} // prevents user from clicking multiple times while auth is loading

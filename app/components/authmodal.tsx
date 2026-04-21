@@ -41,11 +41,6 @@ export function AuthModal({
                 : await supabase.auth.signUp({ // call supabase sign up
                     email, // pass email
                     password, // pass password
-                    options: {
-                        data: {
-                            username: username.trim(), // pass username to supabase user metadata
-                        },
-                    },
                 });
 
         if (result.error) { // display potential auth error to user
@@ -60,6 +55,22 @@ export function AuthModal({
             return;
         }
         */
+
+        if (mode === "signup") { // check if user is logging in or signing up
+            if (!result.data.user) { // TypeScript is being mean
+                setErrorMessage("User data was not returned on account creation");
+                return;
+            }
+            const {error} = await supabase.from("profiles").insert({ // set username and user id
+                user_id: result.data.user.id,
+                username: username.trim(),
+            });
+
+            if (error) {
+                setErrorMessage(error.message);
+                return;
+            }
+        }
 
         onAuthed(); // tells create/page.tsx that authentication succeeded
         onClose(); // closes popup modal after successful authentication

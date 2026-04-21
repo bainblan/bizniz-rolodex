@@ -51,20 +51,15 @@ export default function Signup() {
 
     setLoading(true); // disables submit button while Supabase handles signup
 
-    const { data, error } = await supabase.auth.signUp({
+    const result = await supabase.auth.signUp({
       email, // sends email to Supabase Auth
       password, // sends password to Supabase Auth
-      options: {
-        data: {
-          username: username.trim(), // stores username in Supabase user metadata
-        },
-      },
     });
 
     setLoading(false); // re enables form after Supabase responds
 
-    if (error) { // shows potential Supabase Auth error to the user
-      setErrorMessage(error.message);
+    if (result.error) { // shows potential Supabase Auth error to the user
+      setErrorMessage(result.error.message);
       return;
     }
 
@@ -74,6 +69,21 @@ export default function Signup() {
       return;
     }
      */
+
+    if (!result.data.user) {
+      setErrorMessage("User data failed to return oin account creation");
+      return;
+    }
+
+    const { error } = await supabase.from("profiles").insert({
+      user_id: result.data.user.id,
+      username: username.trim(),
+    });
+
+    if (error) {
+      setErrorMessage(error.message);
+      return;
+    }
 
     router.push("/rolodex"); // sends logged in users to rolodex after signup
   }
