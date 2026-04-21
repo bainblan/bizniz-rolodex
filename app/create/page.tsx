@@ -157,7 +157,7 @@ function ProfileCreation() {
     }
 
     const username = getProfile.data.username;
-    const qrCodeUrl = `${window.location.origin}/card/${username}`;
+    const qrCodeUrl = `${window.location.origin}/rolodex?username=${encodeURIComponent(username)}`;
 
     const updateProfile = await supabase
         .from("profiles")

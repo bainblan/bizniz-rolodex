@@ -1,7 +1,7 @@
 "use client";
 
 import { useEffect, useState } from "react";
-import Image from "next/image";
+import { StyledQR } from "@/app/components/styledqr";
 import Link from "next/link";
 import { supabase, isSupabaseConfigured } from "@/app/libs/supabase";
 
@@ -102,13 +102,7 @@ function BusinessCard({ card }: { card: BusinessCardData }) {
           </div>
         </div>
       </div>
-      <Image
-        src={card.qr_code_url || "/sample-qr.png"}
-        alt="QR Code"
-        width={153}
-        height={153}
-        className="object-cover"
-      />
+      <StyledQR url={card.qr_code_url} />
     </div>
   );
 }
@@ -120,6 +114,47 @@ export default function Rolodex() {
   useEffect(() => {
     async function fetchCards() {
       if (!isSupabaseConfigured) {
+        setLoading(false);
+        return;
+      }
+
+      const scannedUsername = new URLSearchParams(window.location.search).get("username");
+
+      if (scannedUsername) {
+        const profileResult = await supabase
+            .from("profiles")
+            .select("user_id")
+            .eq("username", scannedUsername)
+            .single();
+
+        if (profileResult.error) {
+          console.error("Error fetching scanned profile:", profileResult.error);
+          setCards([]);
+          setLoading(false);
+          return;
+        }
+
+        const cardResult = await supabase
+            .from("business_cards")
+            .select("*")
+            .eq("user_id", profileResult.data.user_id)
+            .single();
+
+        if (cardResult.error) {
+          console.error("Error fetching scanned business card:", cardResult.error);
+          setCards([]);
+          setLoading(false);
+          return;
+        }
+
+        setCards([
+          {
+            rolodex_entry_id: 0,
+            scanned_user_id: profileResult.data.user_id,
+            card: cardResult.data,
+          },
+        ]);
+
         setLoading(false);
         return;
       }
