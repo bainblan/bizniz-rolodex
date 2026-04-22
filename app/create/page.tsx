@@ -16,6 +16,7 @@ interface ExistingCard {
   email: string;
   website: string;
   card_color: string;
+  image_url: string | null; // image_url from supabase
 }
 
 // --- Icons ---
@@ -56,6 +57,7 @@ function ProfileCreation() {
   const [loading, setLoading] = useState(false);
   const [authModalOpen, setAuthModalOpen] = useState(false); // controls login/signup modal visibility
   const [logoUrl, setLogoUrl] = useState<string | null>(null);
+  const [logoFile, setLogoFile] = useState<File | null>(null); // stores user uploaded image
   const [errorMessage, setErrorMessage] = useState(""); // stores potential error message to display
   const [existingCard, setExistingCard] = useState<ExistingCard | null>(null);
   const editMode = existingCard !== null;
@@ -63,6 +65,7 @@ function ProfileCreation() {
   const handleLogoChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     const file = e.target.files?.[0];
     if (file) {
+      setLogoFile(file); // set logoFile to the file uploaded by user
       setLogoUrl(URL.createObjectURL(file));
     }
   };
@@ -88,7 +91,7 @@ function ProfileCreation() {
 
       const { data, error } = await supabase
         .from("business_cards")
-        .select("first_name, last_name, company_name, tagline, phone, email, website, card_color")
+        .select("first_name, last_name, company_name, tagline, phone, email, website, card_color, image_url")
         .eq("user_id", user.id)
         .maybeSingle();
 
@@ -99,6 +102,7 @@ function ProfileCreation() {
       if (!data) return;
 
       setExistingCard(data);
+      setLogoUrl(data.image_url); // sets logo url to be image_url returned from supabase
       // Leave text fields empty so placeholders display the existing values.
       // Pre-fill the secondary color so the picker swatch shows the current color.
       setFormData((prev) => ({
@@ -187,7 +191,41 @@ function ProfileCreation() {
       return;
     }
 
+    let imageUrl: string | null = null; // var to hold url returned from supabase user-image bucket
+
+    if (logoFile) { // if the user uploads an image
+      const fileExt = logoFile.name.split(".").pop(); // grab the file extention
+      const filePath = `${user.id}/card-image.${fileExt}`; // user_id/card-image.filext
+
+      const uploadResult = await supabase.storage
+          .from("card-images")
+          .upload(filePath, logoFile, { // store image in card-images bucket
+            cacheControl: "3600", // keep in browser cache for 1 hr
+            upsert: true,
+            contentType: logoFile.type, // give image extension to supabase
+          });
+
+      if (uploadResult.error) { // check for upload errors
+        setErrorMessage("Error uploading image: " + uploadResult.error.message);
+        setLoading(false);
+        return;
+      }
+
+      const publicUrlResult = supabase.storage
+          .from("card-images")
+          .getPublicUrl(filePath); // get an image url from supabase to store inside business_cards table
+
+      imageUrl = publicUrlResult.data.publicUrl;
+
+      if (!imageUrl) { // check if supabase returned an image URL
+        setErrorMessage("Error uploading saving image URL");
+        setLoading(false); // re enable update button after failure
+        return;
+      }
+    }
+
     if (editMode && existingCard) {
+
       // Build an update payload with only the fields the user changed.
       const updates: Partial<ExistingCard> = {};
       if (formData.firstName) updates.first_name = formData.firstName;
@@ -199,6 +237,9 @@ function ProfileCreation() {
       if (formData.website) updates.website = formData.website;
       if (formData.secondaryColor !== existingCard.card_color) {
         updates.card_color = formData.secondaryColor;
+      }
+      if (imageUrl) { // if user uploaded an image and supabase returned a URL, then add it io update payload
+        updates.image_url = imageUrl;
       }
 
       if (Object.keys(updates).length === 0) {
@@ -262,6 +303,7 @@ function ProfileCreation() {
         website: formData.website,
         card_color: formData.secondaryColor,
         qr_code_url: qrCodeUrl,
+        image_url: imageUrl, // add image url to supabase
       },
     ]);
 
