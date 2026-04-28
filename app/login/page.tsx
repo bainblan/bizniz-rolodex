@@ -48,7 +48,7 @@ export default function Login() {
         <form // I changed this to a form that can collect and submit user entered information
           onSubmit={handleLogin} // when user submits it sends handle login
           className="flex flex-col gap-2.5 items-center w-full max-w-[393px]">
-          <h1 className="text-[32px] font-bold text-center text-white w-full">
+          <h1 className="text-[32px] font-bold text-center text-white w-full fade-in-up fade-in-up-1">
             Login to <span className="italic">BIZNIZ</span>
           </h1>
           <input
@@ -56,14 +56,14 @@ export default function Login() {
             placeholder="Email Address" // placeholder text
             value={email} // connect user input to react state
             onChange={(e) => setEmail(e.target.value)} // updates email state as user types
-            className="w-full rounded-lg bg-white px-2.5 py-4 text-xl text-black placeholder:text-black/25 outline-none"
+            className="w-full rounded-lg bg-white px-2.5 py-4 text-xl text-black placeholder:text-black/25 outline-none fade-in-up fade-in-up-2"
           />
           <input
             type="password" // uses browser password behavior
             placeholder="Password" // placeholder text
             value={password} // connect user input to react state
             onChange={(e) => setPassword(e.target.value)} // updates password state as user types
-            className="w-full rounded-lg bg-white px-2.5 py-4 text-xl text-black placeholder:text-black/25 outline-none"
+            className="w-full rounded-lg bg-white px-2.5 py-4 text-xl text-black placeholder:text-black/25 outline-none fade-in-up fade-in-up-3"
           />
           {errorMessage && (
               /* makes error message full width of parent, rounded borders, background is white with 10 percent transparency,
@@ -74,7 +74,7 @@ export default function Login() {
           <button
             type="submit" // makes this button submit the login form
             disabled={loading} // prevents user from clicking multiple times while auth is loading
-            className="w-full rounded-lg bg-[#b06bff] py-[18px] text-xl font-bold text-white hover:bg-[#9a50f0] transition-colors">
+            className="w-full rounded-lg bg-[#b06bff] py-[18px] text-xl font-bold text-white hover:bg-[#9a50f0] transition-colors fade-in-up fade-in-up-4">
             {loading ? "Logging in..." : "Login"} {/* ternery statement to display logging in while auth loads */}
           </button>
         </form>

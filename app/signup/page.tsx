@@ -90,7 +90,7 @@ export default function Signup() {
             onSubmit={handleSignup} // runs signup when the user submits the form
             className="flex flex-col gap-2.5 items-center w-full max-w-[393px]"
         >
-          <h1 className="text-[32px] font-bold text-center text-white w-full">
+          <h1 className="text-[32px] font-bold text-center text-white w-full fade-in-up fade-in-up-1">
             Start with <span className="italic">BIZNIZ</span>
           </h1>
           <input
@@ -98,28 +98,28 @@ export default function Signup() {
             placeholder="Username"
             value={username} // connects username input to React state
             onChange={(e) => setUsername(e.target.value)} // updates username as user types
-            className="w-full rounded-lg bg-white px-2.5 py-4 text-xl text-black placeholder:text-black/25 outline-none"
+            className="w-full rounded-lg bg-white px-2.5 py-4 text-xl text-black placeholder:text-black/25 outline-none fade-in-up fade-in-up-2"
           />
           <input
               type="email"
               placeholder="Email Address"
               value={email} // connects email input to React state
               onChange={(e) => setEmail(e.target.value)} // updates email as the user types
-              className="w-full rounded-lg bg-white px-2.5 py-4 text-xl text-black placeholder:text-black/25 outline-none"
+              className="w-full rounded-lg bg-white px-2.5 py-4 text-xl text-black placeholder:text-black/25 outline-none fade-in-up fade-in-up-3"
           />
           <input
             type="password"
             placeholder="Password"
             value={password} // connects password input to React state
             onChange={(e) => setPassword(e.target.value)} // updates password as user types
-            className="w-full rounded-lg bg-white px-2.5 py-4 text-xl text-black placeholder:text-black/25 outline-none"
+            className="w-full rounded-lg bg-white px-2.5 py-4 text-xl text-black placeholder:text-black/25 outline-none fade-in-up fade-in-up-4"
           />
           <input
             type="password"
             placeholder="Re-enter Password"
             value={confirmPassword} // connects repeated password input to React state
             onChange={(e) => setConfirmPassword(e.target.value)} // updates repeated password as the user types
-            className="w-full rounded-lg bg-white px-2.5 py-4 text-xl text-black placeholder:text-black/25 outline-none"
+            className="w-full rounded-lg bg-white px-2.5 py-4 text-xl text-black placeholder:text-black/25 outline-none fade-in-up fade-in-up-5"
           />
           {errorMessage && (
               <p className="w-full rounded-lg bg-white/10 px-3 py-2 text-sm font-medium text-red-200">
@@ -136,7 +136,7 @@ export default function Signup() {
           <button
               type="submit" // submits form and triggers handleSignup
               disabled={loading} // prevents multiple signup requests one time
-              className="w-full rounded-lg bg-[#b06bff] py-[18px] text-xl font-bold text-white hover:bg-[#9a50f0] transition-colors disabled:opacity-50"
+              className="w-full rounded-lg bg-[#b06bff] py-[18px] text-xl font-bold text-white hover:bg-[#9a50f0] transition-colors disabled:opacity-50 fade-in-up fade-in-up-6"
           >
             {loading ? "Creating..." : "Create Account"}
           </button>

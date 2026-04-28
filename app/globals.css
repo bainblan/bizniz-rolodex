@@ -24,3 +24,58 @@ body {
   color: var(--foreground);
   font-family: Arial, Helvetica, sans-serif;
 }
+
+/* Staggered page-mount fade-in animation. */
+@keyframes fadeInUp {
+  from {
+    opacity: 0;
+    transform: translateY(14px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+.fade-in-up {
+  opacity: 0;
+  animation-name: fadeInUp;
+  animation-duration: 0.6s;
+  animation-timing-function: cubic-bezier(0.4, 0, 0.2, 1);
+  animation-fill-mode: forwards;
+  animation-delay: var(--fade-delay, 0s);
+}
+
+.fade-in-up-0  { --fade-delay: 0s; }
+.fade-in-up-1  { --fade-delay: 0.1s; }
+.fade-in-up-2  { --fade-delay: 0.2s; }
+.fade-in-up-3  { --fade-delay: 0.3s; }
+.fade-in-up-4  { --fade-delay: 0.4s; }
+.fade-in-up-5  { --fade-delay: 0.5s; }
+.fade-in-up-6  { --fade-delay: 0.6s; }
+.fade-in-up-7  { --fade-delay: 0.7s; }
+.fade-in-up-8  { --fade-delay: 0.8s; }
+.fade-in-up-9  { --fade-delay: 0.9s; }
+.fade-in-up-10 { --fade-delay: 1s; }
+
+/* Scroll-triggered variant: child stays hidden until an ancestor gets the .in-view class. */
+.fade-on-scroll {
+  opacity: 0;
+}
+
+.in-view .fade-on-scroll {
+  animation-name: fadeInUp;
+  animation-duration: 0.6s;
+  animation-timing-function: cubic-bezier(0.4, 0, 0.2, 1);
+  animation-fill-mode: forwards;
+  animation-delay: var(--fade-delay, 0s);
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .fade-in-up,
+  .fade-on-scroll,
+  .in-view .fade-on-scroll {
+    animation: none;
+    opacity: 1;
+  }
+}

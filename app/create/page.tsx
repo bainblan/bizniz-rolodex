@@ -317,27 +317,27 @@ function ProfileCreation() {
   };
 
   return (
-    <div className="flex flex-col items-center gap-14 w-full min-h-screen bg-[#4a4a4a] pb-8">
+    <div className="flex flex-col items-center gap-8 lg:gap-14 w-full min-h-screen bg-[#4a4a4a] pb-8">
       {/* Navbar */}
       <Navbar />
 
       {/* Main Content: Card Preview (left) + Form (right) */}
-      <div className="flex flex-1 w-full justify-center gap-10 px-8 items-center">
+      <div className="flex flex-col lg:flex-row flex-1 w-full justify-center items-center lg:items-center gap-8 lg:gap-10 px-4 sm:px-8">
         {/* Left: Business Card Preview (Reactive) */}
-        <div className="flex flex-col items-center justify-center">
-          <div className="flex flex-col w-[360px] rounded-[28px] bg-white shadow-2xl overflow-hidden transition-colors duration-300">
+        <div className="flex flex-col items-center justify-center w-full max-w-[360px] fade-in-up fade-in-up-1">
+          <div className="flex flex-col w-full max-w-[360px] rounded-[28px] bg-white shadow-2xl overflow-hidden transition-colors duration-300">
             {/* Top accent area with QR + profile overlay */}
             <div
               className="relative flex items-center justify-center pt-16 pb-14"
               style={{ backgroundColor: formData.primaryColor }}
             >
-              <div className="relative">
+              <div className="relative w-full max-w-[280px] aspect-square">
                 <Image
                   src="/sample-qr.png"
                   alt="Sample QR Code"
                   width={280}
                   height={280}
-                  className="rounded-xl bg-white p-2 shadow-md"
+                  className="rounded-xl bg-white p-2 shadow-md w-full h-full"
                 />
                 {logoUrl && (
                   <div
@@ -426,9 +426,9 @@ function ProfileCreation() {
         </div>
 
         {/* Right: Form Fields */}
-        <div className="flex flex-col gap-4 w-full max-w-[400px] shrink-0">
+        <div className="flex flex-col gap-4 w-full max-w-[400px] lg:shrink-0">
           {/* Logo Picture Upload */}
-          <div className="flex items-center justify-center mb-2">
+          <div className="flex items-center justify-center mb-2 fade-in-up fade-in-up-2">
             <label className="flex flex-col items-center gap-3.5 cursor-pointer">
               <div className="w-[100px] h-[100px] rounded-full bg-gray-300 overflow-hidden hover:opacity-80 transition-opacity">
                 {logoUrl ? (
@@ -456,7 +456,7 @@ function ProfileCreation() {
             </label>
           </div>
 
-          <div className="flex gap-2.5 w-full">
+          <div className="flex gap-2.5 w-full fade-in-up fade-in-up-3">
             <input
               type="text"
               name="firstName"
@@ -480,7 +480,7 @@ function ProfileCreation() {
             placeholder={existingCard?.company_name || "Business Name"}
             value={formData.companyName}
             onChange={handleChange}
-            className="w-full rounded-lg bg-white px-2.5 py-3 text-lg text-black placeholder:text-black/25 outline-none"
+            className="w-full rounded-lg bg-white px-2.5 py-3 text-lg text-black placeholder:text-black/25 outline-none fade-in-up fade-in-up-4"
           />
           <input
             type="text"
@@ -488,7 +488,7 @@ function ProfileCreation() {
             placeholder={existingCard?.tagline || "Tagline"}
             value={formData.tagline}
             onChange={handleChange}
-            className="w-full rounded-lg bg-white px-2.5 py-3 text-lg text-black placeholder:text-black/25 outline-none"
+            className="w-full rounded-lg bg-white px-2.5 py-3 text-lg text-black placeholder:text-black/25 outline-none fade-in-up fade-in-up-5"
           />
           <input
             type="text"
@@ -496,7 +496,7 @@ function ProfileCreation() {
             placeholder={existingCard?.email || "Email Address"}
             value={formData.email}
             onChange={handleChange}
-            className="w-full rounded-lg bg-white px-2.5 py-3 text-lg text-black placeholder:text-black/25 outline-none"
+            className="w-full rounded-lg bg-white px-2.5 py-3 text-lg text-black placeholder:text-black/25 outline-none fade-in-up fade-in-up-6"
           />
           <input
             type="tel"
@@ -504,7 +504,7 @@ function ProfileCreation() {
             placeholder={existingCard?.phone || "Phone Number"}
             value={formData.phone}
             onChange={handleChange}
-            className="w-full rounded-lg bg-white px-2.5 py-3 text-lg text-black placeholder:text-black/25 outline-none"
+            className="w-full rounded-lg bg-white px-2.5 py-3 text-lg text-black placeholder:text-black/25 outline-none fade-in-up fade-in-up-7"
           />
           <input
             type="url"
@@ -512,11 +512,11 @@ function ProfileCreation() {
             placeholder={existingCard?.website || "Website URL"}
             value={formData.website}
             onChange={handleChange}
-            className="w-full rounded-lg bg-white px-2.5 py-3 text-lg text-black placeholder:text-black/25 outline-none"
+            className="w-full rounded-lg bg-white px-2.5 py-3 text-lg text-black placeholder:text-black/25 outline-none fade-in-up fade-in-up-8"
           />
 
           {/* Color Pickers */}
-          <div className="flex items-center justify-center gap-6">
+          <div className="flex items-center justify-center gap-6 fade-in-up fade-in-up-9">
             <label className="flex flex-col items-center gap-2 cursor-pointer">
               <div
                 className="w-12 h-12 rounded-full border-2 border-white shadow-md"
@@ -560,7 +560,7 @@ function ProfileCreation() {
           <button
             onClick={handleGenerate}
             disabled={loading}
-            className="w-full rounded-lg bg-[#b06bff] py-[18px] text-xl font-bold text-white hover:bg-[#9a50f0] transition-colors disabled:opacity-50"
+            className="w-full rounded-lg bg-[#b06bff] py-[18px] text-xl font-bold text-white hover:bg-[#9a50f0] transition-colors disabled:opacity-50 fade-in-up fade-in-up-10"
           >
             {loading
               ? (editMode ? "Updating..." : "Generating...")

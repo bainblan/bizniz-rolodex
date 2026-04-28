@@ -52,7 +52,7 @@ export function BiznizCard({ card }: { card: BiznizCardData }) {
   const secondary = card.card_color;
 
   return (
-    <div className="flex flex-col w-[360px] rounded-[28px] bg-white shadow-2xl overflow-hidden">
+    <div className="flex flex-col w-full max-w-[360px] rounded-[28px] bg-white shadow-2xl overflow-hidden">
       <div
         className="flex items-center justify-center pt-12 pb-10"
         style={{ backgroundColor: primary }}

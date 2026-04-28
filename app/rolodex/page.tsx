@@ -245,10 +245,10 @@ export default function Rolodex() {
 
       {/* Page Header - Restored Centering and Spacing */}
       <div className="flex flex-col items-center gap-2.5 w-full max-w-[393px] px-4 mt-8">
-        <h1 className="text-[32px] font-bold text-center text-white">
+        <h1 className="text-[32px] font-bold text-center text-white fade-in-up fade-in-up-1">
           {isDemo ? <span className="italic">Rolodex</span> : <>Your <span className="italic">Rolodex</span></>}
         </h1>
-        <p className="text-base text-center text-white/60">
+        <p className="text-base text-center text-white/60 fade-in-up fade-in-up-2">
           {loading
             ? "Loading..."
             : isDemo
@@ -257,7 +257,7 @@ export default function Rolodex() {
         </p>
 
         {/* Search Bar - Restored Original Style */}
-        <div className="flex items-center w-full rounded-lg bg-white px-2.5 py-3 gap-2">
+        <div className="flex items-center w-full rounded-lg bg-white px-2.5 py-3 gap-2 fade-in-up fade-in-up-3">
           <SearchIcon />
           <input
             type="text"
@@ -269,8 +269,14 @@ export default function Rolodex() {
 
       {/* Cards List */}
       <div className="flex flex-col items-center gap-4 mt-6 w-full px-4">
-        {!loading && cards.map((entry) => (
-          <BiznizCard key={entry.rolodex_entry_id} card={entry.card} />
+        {!loading && cards.map((entry, index) => (
+          <div
+            key={entry.rolodex_entry_id}
+            className="fade-in-up w-full flex justify-center"
+            style={{ animationDelay: `${0.4 + index * 0.1}s` }}
+          >
+            <BiznizCard card={entry.card} />
+          </div>
         ))}
       </div>
     </div>
