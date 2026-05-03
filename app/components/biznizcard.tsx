@@ -13,6 +13,7 @@ export interface BiznizCardData {
   card_color: string;        // secondary color: icon-circle fill
   primary_color?: string;    // top-panel fill; defaults to a light lavender
   qr_code_url: string;
+  image_url?: string | null;
 }
 
 function PhoneIcon() {
@@ -57,8 +58,8 @@ export function BiznizCard({ card }: { card: BiznizCardData }) {
         className="flex items-center justify-center pt-12 pb-10"
         style={{ backgroundColor: primary }}
       >
-        <div className="rounded-xl bg-white p-2 shadow-md">
-          <StyledQR url={card.qr_code_url} />
+        <div className="flex h-[160px] w-[160px] items-center justify-center overflow-hidden rounded-xl bg-white shadow-md">
+          <StyledQR url={card.qr_code_url} imageUrl={card.image_url} size={160} contentScale={1.12} />
         </div>
       </div>
 
