@@ -9,7 +9,7 @@ import { StyledQR } from "@/app/components/styledqr";
 
 const DEFAULT_LOGO_IMAGE_SRC = "/default-logo.png";
 const DEFAULT_LOGO_SCALE = 1.32;
-const CREATE_PAGE_QR_SIZE = 280;
+const CREATE_PAGE_QR_SIZE = 200;
 const CREATE_PAGE_LOGO_RATIO = 80 / CREATE_PAGE_QR_SIZE;
 
 interface ExistingCard {
@@ -388,8 +388,8 @@ function ProfileCreation() {
               className="relative flex items-center justify-center pt-16 pb-14"
               style={{ backgroundColor: formData.primaryColor }}
             >
-              <div className="relative w-full max-w-[280px] aspect-square">
-                <div className="flex h-full w-full items-center justify-center overflow-hidden rounded-xl bg-white shadow-md">
+              <div className="relative w-full max-w-[280px] aspect-square flex items-center justify-center">
+                <div className="flex h-[200px] w-[200px] items-center justify-center overflow-hidden rounded-xl bg-white shadow-md">
                   {previewQrUrl ? (
                     <StyledQR
                       url={previewQrUrl}
@@ -398,7 +398,7 @@ function ProfileCreation() {
                       logoSizeRatio={CREATE_PAGE_LOGO_RATIO}
                     />
                   ) : (
-                    <div className="flex h-full w-full items-center justify-center bg-white">
+                    <div className="flex h-[200px] w-[200px] items-center justify-center bg-white">
                       <div className="h-20 w-20 overflow-hidden rounded-full bg-white">
                         {/* eslint-disable-next-line @next/next/no-img-element */}
                         <img
