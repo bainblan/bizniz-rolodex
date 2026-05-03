@@ -3,16 +3,21 @@
 import { useEffect, useRef } from "react";
 import QRCodeStyling from "qr-code-styling";
 
+const DEFAULT_LOGO_IMAGE_SRC = "/default-logo.png";
+const DEFAULT_LOGO_SCALE = 1.32;
+
 export function StyledQR({
   url,
   size = 173,
   imageUrl,
   contentScale = 1,
+  logoSizeRatio = 0.4,
 }: {
   url: string;
   size?: number;
   imageUrl?: string | null;
   contentScale?: number;
+  logoSizeRatio?: number;
 }) {
   const ref = useRef<HTMLDivElement>(null);
 
@@ -61,7 +66,9 @@ export function StyledQR({
     };
   }, [size, url]);
 
-  const logoMaskSize = Math.round(size * 0.4);
+  const logoMaskSize = Math.round(size * logoSizeRatio);
+  const overlayImageUrl = imageUrl?.trim() || DEFAULT_LOGO_IMAGE_SRC;
+  const isUsingDefaultLogo = !imageUrl?.trim();
 
   return (
     <div
@@ -82,25 +89,29 @@ export function StyledQR({
           className="flex items-center justify-center bg-white"
           style={{ width: size, height: size }}
         />
-        {imageUrl && (
+        <div
+          className="pointer-events-none absolute inset-0 flex items-center justify-center"
+        >
           <div
-            className="pointer-events-none absolute inset-0 flex items-center justify-center"
+            className="flex items-center justify-center rounded-full bg-white p-[2px]"
+            style={{ width: logoMaskSize, height: logoMaskSize }}
           >
-            <div
-              className="flex items-center justify-center rounded-full bg-white p-[2px]"
-              style={{ width: logoMaskSize, height: logoMaskSize }}
-            >
-              <div className="h-full w-full overflow-hidden rounded-full bg-white">
-                {/* eslint-disable-next-line @next/next/no-img-element */}
-                <img
-                  src={imageUrl}
-                  alt=""
-                  className="h-full w-full object-cover"
-                />
-              </div>
+            <div className="h-full w-full overflow-hidden rounded-full bg-white">
+              {/* eslint-disable-next-line @next/next/no-img-element */}
+              <img
+                src={overlayImageUrl}
+                alt=""
+                className="h-full w-full object-cover"
+                style={{
+                  transform: isUsingDefaultLogo
+                    ? `scale(${DEFAULT_LOGO_SCALE})`
+                    : undefined,
+                  transformOrigin: "center",
+                }}
+              />
             </div>
           </div>
-        )}
+        </div>
       </div>
     </div>
   );

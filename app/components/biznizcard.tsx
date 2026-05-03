@@ -10,8 +10,9 @@ export interface BiznizCardData {
   phone: string;
   email: string;
   website: string;
-  card_color: string;        // secondary color: icon-circle fill
-  primary_color?: string;    // top-panel fill; defaults to a light lavender
+  secondary_color?: string | null; // icon-circle fill
+  primary_color?: string | null;   // top-panel fill; defaults to a light lavender
+  card_color?: string | null;      // legacy fallback for older rows
   qr_code_url: string;
   image_url?: string | null;
 }
@@ -50,7 +51,7 @@ function BriefcaseIcon() {
 
 export function BiznizCard({ card }: { card: BiznizCardData }) {
   const primary = card.primary_color ?? "#d9c7ec";
-  const secondary = card.card_color;
+  const secondary = card.secondary_color ?? card.card_color ?? "#400068";
 
   return (
     <div className="flex flex-col w-full max-w-[360px] rounded-[28px] bg-white shadow-2xl overflow-hidden">

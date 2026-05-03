@@ -1,11 +1,16 @@
 "use client";
 
-import { Suspense, useEffect, useState } from "react";
-import Image from "next/image";
+import { Suspense, useCallback, useEffect, useState } from "react";
 import { useRouter, useSearchParams } from "next/navigation";
 import { supabase, isSupabaseConfigured } from "@/app/libs/supabase";
 import { AuthModal } from "@/app/components/authmodal" // imports the authmodal component to be used when a non logged in or signed up user want to make a new card
 import { Navbar } from "@/app/components/navbar";
+import { StyledQR } from "@/app/components/styledqr";
+
+const DEFAULT_LOGO_IMAGE_SRC = "/default-logo.png";
+const DEFAULT_LOGO_SCALE = 1.32;
+const CREATE_PAGE_QR_SIZE = 280;
+const CREATE_PAGE_LOGO_RATIO = 80 / CREATE_PAGE_QR_SIZE;
 
 interface ExistingCard {
   first_name: string;
@@ -15,7 +20,9 @@ interface ExistingCard {
   phone: string;
   email: string;
   website: string;
-  card_color: string;
+  primary_color?: string | null;
+  secondary_color?: string | null;
+  card_color?: string | null; // legacy fallback for older rows
   image_url: string | null; // image_url from supabase
 }
 
@@ -60,6 +67,7 @@ function ProfileCreation() {
   const [logoFile, setLogoFile] = useState<File | null>(null); // stores user uploaded image
   const [errorMessage, setErrorMessage] = useState(""); // stores potential error message to display
   const [existingCard, setExistingCard] = useState<ExistingCard | null>(null);
+  const [previewQrUrl, setPreviewQrUrl] = useState<string | null>(null);
   const editMode = existingCard !== null;
 
   const handleLogoChange = (e: React.ChangeEvent<HTMLInputElement>) => {
@@ -82,38 +90,73 @@ function ProfileCreation() {
     secondaryColor: "#400068",
   });
 
-  useEffect(() => {
-    if (!isSupabaseConfigured) return;
+  const buildQrCodeUrl = useCallback((username: string) => {
+    if (typeof window === "undefined") {
+      return null;
+    }
 
-    async function loadExistingCard() {
-      const { data: { user } } = await supabase.auth.getUser();
-      if (!user) return;
+    return `${window.location.origin}/rolodex?username=${encodeURIComponent(username)}`;
+  }, []);
 
-      const { data, error } = await supabase
-        .from("business_cards")
-        .select("first_name, last_name, company_name, tagline, phone, email, website, card_color, image_url")
-        .eq("user_id", user.id)
-        .maybeSingle();
+  const loadPreviewData = useCallback(async () => {
+    if (!isSupabaseConfigured) {
+      setPreviewQrUrl(null);
+      return;
+    }
 
-      if (error) {
-        console.error("Error loading existing card:", error);
-        return;
-      }
-      if (!data) return;
+    const {
+      data: { user },
+    } = await supabase.auth.getUser();
 
-      setExistingCard(data);
-      setLogoUrl(data.image_url); // sets logo url to be image_url returned from supabase
+    if (!user) {
+      setPreviewQrUrl(null);
+      setExistingCard(null);
+      return;
+    }
+
+    const [{ data: cardData, error: cardError }, { data: profileData, error: profileError }] =
+      await Promise.all([
+        supabase
+          .from("business_cards")
+          .select("*")
+          .eq("user_id", user.id)
+          .maybeSingle(),
+        supabase
+          .from("profiles")
+          .select("username")
+          .eq("user_id", user.id)
+          .maybeSingle(),
+      ]);
+
+    if (cardError) {
+      console.error("Error loading existing card:", cardError);
+    } else if (cardData) {
+      setExistingCard(cardData);
+      setLogoUrl(cardData.image_url); // sets logo url to be image_url returned from supabase
       // Leave text fields empty so placeholders display the existing values.
       // Pre-fill the secondary color so the picker swatch shows the current color.
       setFormData((prev) => ({
         ...prev,
         companyName: "",
-        secondaryColor: data.card_color ?? prev.secondaryColor,
+        primaryColor: cardData.primary_color ?? prev.primaryColor,
+        secondaryColor:
+          cardData.secondary_color ?? cardData.card_color ?? prev.secondaryColor,
       }));
     }
 
-    loadExistingCard();
-  }, []);
+    if (profileError) {
+      console.error("Error loading profile preview:", profileError);
+      setPreviewQrUrl(null);
+      return;
+    }
+
+    const username = profileData?.username?.trim();
+    setPreviewQrUrl(username ? buildQrCodeUrl(username) : null);
+  }, [buildQrCodeUrl]);
+
+  useEffect(() => {
+    loadPreviewData();
+  }, [loadPreviewData]);
 
   const validateEmail = (email: string) => /^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email);
   const validateWebsite = (url: string) => {
@@ -235,8 +278,15 @@ function ProfileCreation() {
       if (formData.phone) updates.phone = formData.phone;
       if (formData.email) updates.email = formData.email;
       if (formData.website) updates.website = formData.website;
-      if (formData.secondaryColor !== existingCard.card_color) {
-        updates.card_color = formData.secondaryColor;
+      const existingPrimaryColor = existingCard.primary_color ?? "#d9c7ec";
+      const existingSecondaryColor =
+        existingCard.secondary_color ?? existingCard.card_color ?? "#400068";
+
+      if (formData.primaryColor !== existingPrimaryColor) {
+        updates.primary_color = formData.primaryColor;
+      }
+      if (formData.secondaryColor !== existingSecondaryColor) {
+        updates.secondary_color = formData.secondaryColor;
       }
       if (imageUrl) { // if user uploaded an image and supabase returned a URL, then add it io update payload
         updates.image_url = imageUrl;
@@ -278,7 +328,13 @@ function ProfileCreation() {
     }
 
     const username = getProfile.data.username;
-    const qrCodeUrl = `${window.location.origin}/rolodex?username=${encodeURIComponent(username)}`;
+    const qrCodeUrl = buildQrCodeUrl(username);
+
+    if (!qrCodeUrl) {
+      setErrorMessage("Error generating QR code URL");
+      setLoading(false);
+      return;
+    }
 
     const updateProfile = await supabase
         .from("profiles")
@@ -301,7 +357,8 @@ function ProfileCreation() {
         phone: formData.phone,
         email: formData.email,
         website: formData.website,
-        card_color: formData.secondaryColor,
+        primary_color: formData.primaryColor,
+        secondary_color: formData.secondaryColor,
         qr_code_url: qrCodeUrl,
         image_url: imageUrl, // add image url to supabase
       },
@@ -332,26 +389,31 @@ function ProfileCreation() {
               style={{ backgroundColor: formData.primaryColor }}
             >
               <div className="relative w-full max-w-[280px] aspect-square">
-                <Image
-                  src="/sample-qr.png"
-                  alt="Sample QR Code"
-                  width={280}
-                  height={280}
-                  className="rounded-xl bg-white p-2 shadow-md w-full h-full"
-                />
-                {logoUrl && (
-                  <div
-                    className="absolute inset-0 m-auto w-20 h-20 rounded-full border-4 border-white bg-white overflow-hidden flex items-center justify-center"
-                    style={{ boxShadow: "0 2px 8px rgba(0,0,0,0.15)" }}
-                  >
-                    {/* eslint-disable-next-line @next/next/no-img-element */}
-                    <img
-                      src={logoUrl}
-                      alt="Logo"
-                      className="w-full h-full object-cover"
+                <div className="flex h-full w-full items-center justify-center overflow-hidden rounded-xl bg-white shadow-md">
+                  {previewQrUrl ? (
+                    <StyledQR
+                      url={previewQrUrl}
+                      imageUrl={logoUrl}
+                      size={CREATE_PAGE_QR_SIZE}
+                      logoSizeRatio={CREATE_PAGE_LOGO_RATIO}
                     />
-                  </div>
-                )}
+                  ) : (
+                    <div className="flex h-full w-full items-center justify-center bg-white">
+                      <div className="h-20 w-20 overflow-hidden rounded-full bg-white">
+                        {/* eslint-disable-next-line @next/next/no-img-element */}
+                        <img
+                          src={logoUrl || DEFAULT_LOGO_IMAGE_SRC}
+                          alt="Logo"
+                          className="h-full w-full object-cover"
+                          style={{
+                            transform: logoUrl ? undefined : `scale(${DEFAULT_LOGO_SCALE})`,
+                            transformOrigin: "center",
+                          }}
+                        />
+                      </div>
+                    </div>
+                  )}
+                </div>
               </div>
             </div>
 
@@ -430,19 +492,17 @@ function ProfileCreation() {
           {/* Logo Picture Upload */}
           <div className="flex items-center justify-center mb-2 fade-in-up fade-in-up-2">
             <label className="flex flex-col items-center gap-3.5 cursor-pointer">
-              <div className="w-[100px] h-[100px] rounded-full bg-gray-300 overflow-hidden hover:opacity-80 transition-opacity">
-                {logoUrl ? (
-                  // eslint-disable-next-line @next/next/no-img-element
-                  <img
-                    src={logoUrl}
-                    alt="Logo preview"
-                    className="w-full h-full object-cover"
-                  />
-                ) : (
-                  <div className="w-full h-full flex items-center justify-center text-gray-500 text-sm">
-                    Logo
-                  </div>
-                )}
+              <div className="w-[100px] h-[100px] rounded-full bg-white overflow-hidden hover:opacity-80 transition-opacity">
+                {/* eslint-disable-next-line @next/next/no-img-element */}
+                <img
+                  src={logoUrl || DEFAULT_LOGO_IMAGE_SRC}
+                  alt="Logo preview"
+                  className="w-full h-full object-cover"
+                  style={{
+                    transform: logoUrl ? undefined : `scale(${DEFAULT_LOGO_SCALE})`,
+                    transformOrigin: "center",
+                  }}
+                />
               </div>
               <span className="text-sm font-semibold text-white">
                 Edit Logo Picture
@@ -572,7 +632,7 @@ function ProfileCreation() {
       {authModalOpen && (
           <AuthModal
             onClose={() => setAuthModalOpen(false)} // close authmodal when user clicks close
-            onAuthed={() => setAuthModalOpen(false)} // close authmodal when user is logged in
+            onAuthed={loadPreviewData}
           />
       )}
     </div>

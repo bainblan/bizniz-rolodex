@@ -29,8 +29,9 @@ interface BusinessCardData {
   phone: string;
   email: string;
   website: string;
-  card_color: string;
-  primary_color?: string;
+  secondary_color?: string | null;
+  primary_color?: string | null;
+  card_color?: string | null; // legacy fallback for older rows
   qr_code_url: string;
   image_url?: string | null;
 }
@@ -69,7 +70,7 @@ const DEMO_CARDS: RolodexCardData[] = [
       phone: "(555) 123-4567",
       email: "jane@acmedesign.co",
       website: "acmedesign.co",
-      card_color: "#400068",
+      secondary_color: "#400068",
       primary_color: "#d9c7ec",
       qr_code_url: "https://bizniz.example/rolodex?username=janedoe",
     },
@@ -86,7 +87,7 @@ const DEMO_CARDS: RolodexCardData[] = [
       phone: "(555) 246-8013",
       email: "mike@pixelforge.io",
       website: "pixelforge.io",
-      card_color: "#1e3a8a",
+      secondary_color: "#1e3a8a",
       primary_color: "#c7d4ec",
       qr_code_url: "https://bizniz.example/rolodex?username=mikechen",
     },
@@ -103,7 +104,7 @@ const DEMO_CARDS: RolodexCardData[] = [
       phone: "(555) 369-2580",
       email: "sarah@greenbean.co",
       website: "greenbean.co",
-      card_color: "#1f5f3a",
+      secondary_color: "#1f5f3a",
       primary_color: "#c7ecd4",
       qr_code_url: "https://bizniz.example/rolodex?username=sarahj",
     },
@@ -120,7 +121,7 @@ const DEMO_CARDS: RolodexCardData[] = [
       phone: "(555) 482-7391",
       email: "alex@quantumlabs.ai",
       website: "quantumlabs.ai",
-      card_color: "#7f1d1d",
+      secondary_color: "#7f1d1d",
       primary_color: "#ecc7c7",
       qr_code_url: "https://bizniz.example/rolodex?username=alexr",
     },

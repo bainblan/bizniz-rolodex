@@ -214,7 +214,7 @@ export default function Home() {
                 phone: "pho-nen-umber",
                 email: "email@address",
                 website: "website.url",
-                card_color: "#400068",
+                secondary_color: "#400068",
                 primary_color: "#d9c7ec",
                 qr_code_url: "https://bizniz.example",
               }}
