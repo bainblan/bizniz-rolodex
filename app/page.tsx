@@ -216,7 +216,7 @@ export default function Home() {
                 website: "website.url",
                 secondary_color: "#400068",
                 primary_color: "#d9c7ec",
-                qr_code_url: "https://bizniz.example",
+                qr_code_url: "https://bizniz.example/rolodex?username=companyname",
               }}
             />
           </div>
