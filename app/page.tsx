@@ -24,13 +24,15 @@ export default function Home() {
   const [isAuthed, setIsAuthed] = useState(false);
   const [hasCard, setHasCard] = useState(false);
   const [authLoaded, setAuthLoaded] = useState(false);
-  const [demoQrUrl, setDemoQrUrl] = useState("https://bizniz.example");
+  const [demoQrUrl, setDemoQrUrl] = useState(
+    "https://bizniz.example/?qr=landing-demo"
+  );
 
   const whatIsRef = useRef<HTMLElement>(null);
   const [whatIsInView, setWhatIsInView] = useState(false);
 
   useEffect(() => {
-    setDemoQrUrl(window.location.origin);
+    setDemoQrUrl(`${window.location.origin}/?qr=landing-demo`);
   }, []);
 
   useEffect(() => {
