@@ -10,6 +10,7 @@ import { StyledQR } from "@/app/components/styledqr";
 const DEFAULT_LOGO_IMAGE_SRC = "/default-logo.png";
 const DEFAULT_LOGO_SCALE = 1.3;
 const PUBLIC_APP_ORIGIN = "https://bizniz-rolodex.vercel.app";
+const DEFAULT_PREVIEW_QR_URL = `${PUBLIC_APP_ORIGIN}/rolodex`;
 const CREATE_PAGE_QR_SIZE = 190;
 const CREATE_PAGE_QR_CONTENT_SCALE = 1.2;
 const CREATE_PAGE_LOGO_PIXEL_SIZE = 70;
@@ -76,7 +77,12 @@ function ProfileCreation() {
   const [logoFile, setLogoFile] = useState<File | null>(null); // stores user uploaded image
   const [errorMessage, setErrorMessage] = useState(""); // stores potential error message to display
   const [existingCard, setExistingCard] = useState<ExistingCard | null>(null);
-  const [previewQrUrl, setPreviewQrUrl] = useState<string | null>(null);
+  const [previewQrUrl, setPreviewQrUrl] = useState<string | null>(
+    isSupabaseConfigured ? null : DEFAULT_PREVIEW_QR_URL
+  );
+  const [initialPreviewLoaded, setInitialPreviewLoaded] = useState(
+    !isSupabaseConfigured
+  );
   const editMode = existingCard !== null;
 
   const handleLogoChange = (e: React.ChangeEvent<HTMLInputElement>) => {
@@ -112,14 +118,18 @@ function ProfileCreation() {
         return savedProfileUrl;
       }
 
-      return username ? buildQrCodeUrl(username) : `${PUBLIC_APP_ORIGIN}/rolodex`;
+      return username ? buildQrCodeUrl(username) : DEFAULT_PREVIEW_QR_URL;
     },
     [buildQrCodeUrl]
   );
 
   const loadPreviewData = useCallback(async () => {
+    setInitialPreviewLoaded(false);
+    setPreviewQrUrl(isSupabaseConfigured ? null : DEFAULT_PREVIEW_QR_URL);
+
     if (!isSupabaseConfigured) {
       setPreviewQrUrl(buildPreviewQrUrl());
+      setInitialPreviewLoaded(true);
       return;
     }
 
@@ -130,6 +140,7 @@ function ProfileCreation() {
     if (!user) {
       setPreviewQrUrl(buildPreviewQrUrl());
       setExistingCard(null);
+      setInitialPreviewLoaded(true);
       return;
     }
 
@@ -166,10 +177,12 @@ function ProfileCreation() {
     if (profileError) {
       console.error("Error loading profile preview:", profileError);
       setPreviewQrUrl(buildPreviewQrUrl());
+      setInitialPreviewLoaded(true);
       return;
     }
 
     setPreviewQrUrl(buildPreviewQrUrl(profileData as ProfilePreviewData | null));
+    setInitialPreviewLoaded(true);
   }, [buildPreviewQrUrl]);
 
   useEffect(() => {
@@ -409,6 +422,7 @@ function ProfileCreation() {
       <Navbar />
 
       {/* Main Content: Card Preview (left) + Form (right) */}
+      {initialPreviewLoaded && (
       <div className="flex flex-col lg:flex-row flex-1 w-full justify-center items-center lg:items-center gap-8 lg:gap-10 px-4 sm:px-8">
         {/* Left: Business Card Preview (Reactive) */}
         <div className="flex flex-col items-center justify-center w-full max-w-[360px] fade-in-up fade-in-up-1">
@@ -420,7 +434,7 @@ function ProfileCreation() {
             >
               <div className="relative w-full max-w-[280px] aspect-square flex items-center justify-center">
                 <div className="flex h-[180px] w-[180px] items-center justify-center overflow-hidden rounded-xl bg-white shadow-md">
-                  {previewQrUrl ? (
+                  {previewQrUrl && (
                     <StyledQR
                       url={previewQrUrl}
                       imageUrl={logoUrl}
@@ -428,21 +442,6 @@ function ProfileCreation() {
                       contentScale={CREATE_PAGE_QR_CONTENT_SCALE}
                       logoSizeRatio={CREATE_PAGE_LOGO_RATIO}
                     />
-                  ) : (
-                    <div className="flex h-[200px] w-[200px] items-center justify-center bg-white">
-                      <div className="h-full w-full overflow-hidden rounded-full bg-white">
-                        {/* eslint-disable-next-line @next/next/no-img-element */}
-                        <img
-                          src={logoUrl || DEFAULT_LOGO_IMAGE_SRC}
-                          alt="Logo"
-                          className="h-20 w-20 object-cover"
-                          style={{
-                            transform: logoUrl ? undefined : `scale(${DEFAULT_LOGO_SCALE})`,
-                            transformOrigin: "center",
-                          }}
-                        />
-                      </div>
-                    </div>
                   )}
                 </div>
               </div>
@@ -659,6 +658,7 @@ function ProfileCreation() {
           </button>
         </div>
       </div>
+      )}
 
       {authModalOpen && (
           <AuthModal
