@@ -1,17 +1,33 @@
 "use client";
 
-import { useEffect, useRef } from "react";
-import QRCodeStyling from "qr-code-styling";
+import { useEffect, useMemo, useRef } from "react";
+import QRCodeStyling, { type TypeNumber } from "qr-code-styling";
+import qrcode from "qrcode-generator";
 
 const DEFAULT_LOGO_IMAGE_SRC = "/default-logo.png";
 const DEFAULT_LOGO_SCALE = 1.3;
+const QR_ERROR_CORRECTION_LEVEL = "H";
+const MIN_PROFILE_QR_TYPE_NUMBER = 7;
+
+function toTypeNumber(value: number): TypeNumber {
+  return Math.min(40, Math.max(1, Math.ceil(value))) as TypeNumber;
+}
+
+function getNormalizedTypeNumber(data: string): TypeNumber {
+  const qr = qrcode(0, QR_ERROR_CORRECTION_LEVEL);
+  qr.addData(data);
+  qr.make();
+
+  const autoTypeNumber = (qr.getModuleCount() - 17) / 4;
+  return toTypeNumber(Math.max(MIN_PROFILE_QR_TYPE_NUMBER, autoTypeNumber));
+}
 
 export function StyledQR({
   url,
   size = 173,
   imageUrl,
   contentScale = 1,
-  logoSizeRatio = 0.4,
+  logoSizeRatio = 0.35,
 }: {
   url: string;
   size?: number;
@@ -20,20 +36,26 @@ export function StyledQR({
   logoSizeRatio?: number;
 }) {
   const ref = useRef<HTMLDivElement>(null);
+  const normalizedTypeNumber = useMemo(
+    () => (url ? getNormalizedTypeNumber(url) : MIN_PROFILE_QR_TYPE_NUMBER),
+    [url]
+  );
 
   useEffect(() => {
-    if (!ref.current || !url) return;
+    const container = ref.current;
+    if (!container || !url) return;
 
-    ref.current.innerHTML = "";
+    container.innerHTML = "";
 
     const qrCode = new QRCodeStyling({
       width: size,
       height: size,
       type: "svg",
       data: url,
-      margin: Math.max(5, Math.round(size * 0.01)),
+      margin: 10,
       qrOptions: {
-        errorCorrectionLevel: "H",
+        typeNumber: normalizedTypeNumber,
+        errorCorrectionLevel: QR_ERROR_CORRECTION_LEVEL,
       },
       imageOptions: {
         hideBackgroundDots: false,
@@ -57,14 +79,12 @@ export function StyledQR({
       },
     });
 
-    qrCode.append(ref.current);
+    qrCode.append(container);
 
     return () => {
-      if (ref.current) {
-        ref.current.innerHTML = "";
-      }
+      container.innerHTML = "";
     };
-  }, [size, url]);
+  }, [normalizedTypeNumber, size, url]);
 
   const logoMaskSize = Math.round(size * logoSizeRatio);
   const overlayImageUrl = imageUrl?.trim() || DEFAULT_LOGO_IMAGE_SRC;

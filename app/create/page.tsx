@@ -9,9 +9,12 @@ import { StyledQR } from "@/app/components/styledqr";
 
 const DEFAULT_LOGO_IMAGE_SRC = "/default-logo.png";
 const DEFAULT_LOGO_SCALE = 1.3;
+const PUBLIC_APP_ORIGIN = "https://bizniz-rolodex.vercel.app";
 const CREATE_PAGE_QR_SIZE = 190;
-const CREATE_PAGE_SIGNED_OUT_QR_SCALE = 1.1;
-const CREATE_PAGE_LOGO_RATIO = 80 / CREATE_PAGE_QR_SIZE;
+const CREATE_PAGE_QR_CONTENT_SCALE = 1.2;
+const CREATE_PAGE_LOGO_PIXEL_SIZE = 70;
+const CREATE_PAGE_LOGO_RATIO =
+  CREATE_PAGE_LOGO_PIXEL_SIZE / (CREATE_PAGE_QR_SIZE * CREATE_PAGE_QR_CONTENT_SCALE);
 
 interface ExistingCard {
   first_name: string;
@@ -25,6 +28,11 @@ interface ExistingCard {
   secondary_color?: string | null;
   card_color?: string | null; // legacy fallback for older rows
   image_url: string | null; // image_url from supabase
+}
+
+interface ProfilePreviewData {
+  username: string | null;
+  profile_url: string | null;
 }
 
 // --- Icons ---
@@ -69,7 +77,6 @@ function ProfileCreation() {
   const [errorMessage, setErrorMessage] = useState(""); // stores potential error message to display
   const [existingCard, setExistingCard] = useState<ExistingCard | null>(null);
   const [previewQrUrl, setPreviewQrUrl] = useState<string | null>(null);
-  const [isPreviewSignedOut, setIsPreviewSignedOut] = useState(false);
   const editMode = existingCard !== null;
 
   const handleLogoChange = (e: React.ChangeEvent<HTMLInputElement>) => {
@@ -93,29 +100,25 @@ function ProfileCreation() {
   });
 
   const buildQrCodeUrl = useCallback((username: string) => {
-    if (typeof window === "undefined") {
-      return null;
-    }
-
-    return `${window.location.origin}/rolodex?username=${encodeURIComponent(username)}`;
+    return `${PUBLIC_APP_ORIGIN}/rolodex?username=${encodeURIComponent(username)}`;
   }, []);
 
   const buildPreviewQrUrl = useCallback(
-    (username?: string | null) => {
-      if (typeof window === "undefined") {
-        return null;
+    (profile?: ProfilePreviewData | null) => {
+      const savedProfileUrl = profile?.profile_url?.trim();
+      const username = profile?.username?.trim();
+
+      if (savedProfileUrl) {
+        return savedProfileUrl;
       }
 
-      return username?.trim()
-        ? buildQrCodeUrl(username)
-        : "https://bizniz-rolodex.vercel.app/rolodex";
+      return username ? buildQrCodeUrl(username) : `${PUBLIC_APP_ORIGIN}/rolodex`;
     },
     [buildQrCodeUrl]
   );
 
   const loadPreviewData = useCallback(async () => {
     if (!isSupabaseConfigured) {
-      setIsPreviewSignedOut(true);
       setPreviewQrUrl(buildPreviewQrUrl());
       return;
     }
@@ -125,13 +128,10 @@ function ProfileCreation() {
     } = await supabase.auth.getUser();
 
     if (!user) {
-      setIsPreviewSignedOut(true);
       setPreviewQrUrl(buildPreviewQrUrl());
       setExistingCard(null);
       return;
     }
-
-    setIsPreviewSignedOut(false);
 
     const [{ data: cardData, error: cardError }, { data: profileData, error: profileError }] =
       await Promise.all([
@@ -142,7 +142,7 @@ function ProfileCreation() {
           .maybeSingle(),
         supabase
           .from("profiles")
-          .select("username")
+          .select("username, profile_url")
           .eq("user_id", user.id)
           .maybeSingle(),
       ]);
@@ -169,8 +169,7 @@ function ProfileCreation() {
       return;
     }
 
-    const username = profileData?.username?.trim();
-    setPreviewQrUrl(buildPreviewQrUrl(username));
+    setPreviewQrUrl(buildPreviewQrUrl(profileData as ProfilePreviewData | null));
   }, [buildPreviewQrUrl]);
 
   useEffect(() => {
@@ -340,7 +339,7 @@ function ProfileCreation() {
 
     const getProfile = await supabase
       .from("profiles")
-      .select("username")
+      .select("username, profile_url")
       .eq("user_id", user.id)
       .single();
 
@@ -350,8 +349,16 @@ function ProfileCreation() {
       return;
     }
 
-    const username = getProfile.data.username;
-    const qrCodeUrl = buildQrCodeUrl(username);
+    const profile = getProfile.data as ProfilePreviewData;
+    const username = profile.username?.trim();
+
+    if (!username) {
+      setErrorMessage("Error loading profile username");
+      setLoading(false);
+      return;
+    }
+
+    const qrCodeUrl = buildPreviewQrUrl(profile);
 
     if (!qrCodeUrl) {
       setErrorMessage("Error generating QR code URL");
@@ -418,7 +425,7 @@ function ProfileCreation() {
                       url={previewQrUrl}
                       imageUrl={logoUrl}
                       size={CREATE_PAGE_QR_SIZE}
-                      contentScale={isPreviewSignedOut ? CREATE_PAGE_SIGNED_OUT_QR_SCALE : 1}
+                      contentScale={CREATE_PAGE_QR_CONTENT_SCALE}
                       logoSizeRatio={CREATE_PAGE_LOGO_RATIO}
                     />
                   ) : (
