@@ -31,7 +31,7 @@ export function StyledQR({
       height: size,
       type: "svg",
       data: url,
-      margin: 0,
+      margin: Math.max(5, Math.round(size * 0.01)),
       qrOptions: {
         errorCorrectionLevel: "H",
       },

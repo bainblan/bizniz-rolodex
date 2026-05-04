@@ -47,6 +47,8 @@ interface RolodexEntryRow {
   scanned_user_id: string;
 }
 
+const ROLODEX_QR_SIZE = 180;
+
 type ScanNotice =
   | {
       kind: "success";
@@ -544,7 +546,7 @@ export default function Rolodex() {
               className="fade-in-up w-full flex justify-center"
               style={{ animationDelay: `${0.4 + index * 0.1}s` }}
             >
-              <BiznizCard card={entry.card} />
+              <BiznizCard card={entry.card} qrSize={ROLODEX_QR_SIZE} />
             </div>
           ))}
 
@@ -567,7 +569,7 @@ export default function Rolodex() {
               className="fade-in-up w-full flex justify-center"
               style={{ animationDelay: `${0.1 + index * 0.1}s` }}
             >
-              <BiznizCard card={entry.card} />
+              <BiznizCard card={entry.card} qrSize={ROLODEX_QR_SIZE} />
             </div>
           ))}
       </div>

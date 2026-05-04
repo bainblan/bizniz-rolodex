@@ -49,7 +49,13 @@ function BriefcaseIcon() {
   );
 }
 
-export function BiznizCard({ card }: { card: BiznizCardData }) {
+export function BiznizCard({
+  card,
+  qrSize = 160,
+}: {
+  card: BiznizCardData;
+  qrSize?: number;
+}) {
   const primary = card.primary_color ?? "#d9c7ec";
   const secondary = card.secondary_color ?? card.card_color ?? "#400068";
 
@@ -59,8 +65,11 @@ export function BiznizCard({ card }: { card: BiznizCardData }) {
         className="flex items-center justify-center pt-12 pb-10"
         style={{ backgroundColor: primary }}
       >
-        <div className="flex h-[160px] w-[160px] items-center justify-center overflow-hidden rounded-xl bg-white shadow-md">
-          <StyledQR url={card.qr_code_url} imageUrl={card.image_url} size={160} contentScale={1.12} />
+        <div
+          className="flex items-center justify-center overflow-hidden rounded-xl bg-white shadow-md"
+          style={{ width: qrSize, height: qrSize }}
+        >
+          <StyledQR url={card.qr_code_url} imageUrl={card.image_url} size={qrSize} />
         </div>
       </div>
 
