@@ -8,8 +8,9 @@ import { Navbar } from "@/app/components/navbar";
 import { StyledQR } from "@/app/components/styledqr";
 
 const DEFAULT_LOGO_IMAGE_SRC = "/default-logo.png";
-const DEFAULT_LOGO_SCALE = 1.32;
-const CREATE_PAGE_QR_SIZE = 180;
+const DEFAULT_LOGO_SCALE = 1.3;
+const CREATE_PAGE_QR_SIZE = 190;
+const CREATE_PAGE_SIGNED_OUT_QR_SCALE = 1.1;
 const CREATE_PAGE_LOGO_RATIO = 80 / CREATE_PAGE_QR_SIZE;
 
 interface ExistingCard {
@@ -68,6 +69,7 @@ function ProfileCreation() {
   const [errorMessage, setErrorMessage] = useState(""); // stores potential error message to display
   const [existingCard, setExistingCard] = useState<ExistingCard | null>(null);
   const [previewQrUrl, setPreviewQrUrl] = useState<string | null>(null);
+  const [isPreviewSignedOut, setIsPreviewSignedOut] = useState(false);
   const editMode = existingCard !== null;
 
   const handleLogoChange = (e: React.ChangeEvent<HTMLInputElement>) => {
@@ -104,13 +106,16 @@ function ProfileCreation() {
         return null;
       }
 
-      return username?.trim() ? buildQrCodeUrl(username) : `${window.location.origin}/rolodex`;
+      return username?.trim()
+        ? buildQrCodeUrl(username)
+        : "https://bizniz-rolodex.vercel.app/rolodex";
     },
     [buildQrCodeUrl]
   );
 
   const loadPreviewData = useCallback(async () => {
     if (!isSupabaseConfigured) {
+      setIsPreviewSignedOut(true);
       setPreviewQrUrl(buildPreviewQrUrl());
       return;
     }
@@ -120,10 +125,13 @@ function ProfileCreation() {
     } = await supabase.auth.getUser();
 
     if (!user) {
+      setIsPreviewSignedOut(true);
       setPreviewQrUrl(buildPreviewQrUrl());
       setExistingCard(null);
       return;
     }
+
+    setIsPreviewSignedOut(false);
 
     const [{ data: cardData, error: cardError }, { data: profileData, error: profileError }] =
       await Promise.all([
@@ -410,6 +418,7 @@ function ProfileCreation() {
                       url={previewQrUrl}
                       imageUrl={logoUrl}
                       size={CREATE_PAGE_QR_SIZE}
+                      contentScale={isPreviewSignedOut ? CREATE_PAGE_SIGNED_OUT_QR_SCALE : 1}
                       logoSizeRatio={CREATE_PAGE_LOGO_RATIO}
                     />
                   ) : (

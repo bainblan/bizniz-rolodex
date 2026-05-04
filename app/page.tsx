@@ -16,8 +16,7 @@ function ArrowDownIcon() {
   );
 }
 
-const DEMO_QR_PATH = "rolodex";
-const DEMO_QR_FALLBACK_URL = `https://bizniz.example${DEMO_QR_PATH}`;
+const DEMO_QR_URL = "https://bizniz-rolodex.vercel.app/rolodex";
 
 export default function Home() {
 
@@ -27,10 +26,7 @@ export default function Home() {
   const [isAuthed, setIsAuthed] = useState(false);
   const [hasCard, setHasCard] = useState(false);
   const [authLoaded, setAuthLoaded] = useState(!isSupabaseConfigured);
-  const demoQrUrl =
-    typeof window === "undefined"
-      ? DEMO_QR_FALLBACK_URL
-      : `${window.location.origin}${DEMO_QR_PATH}`;
+  const demoQrUrl = DEMO_QR_URL;
 
   const whatIsRef = useRef<HTMLElement>(null);
   const [whatIsInView, setWhatIsInView] = useState(false);
