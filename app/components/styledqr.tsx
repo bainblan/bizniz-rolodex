@@ -4,14 +4,14 @@ import { useEffect, useRef } from "react";
 import QRCodeStyling from "qr-code-styling";
 
 const DEFAULT_LOGO_IMAGE_SRC = "/default-logo.png";
-const DEFAULT_LOGO_SCALE = 1.32;
+const DEFAULT_LOGO_SCALE = 1.3;
 
 export function StyledQR({
   url,
   size = 173,
   imageUrl,
   contentScale = 1,
-  logoSizeRatio = 0.4,
+  logoSizeRatio = 0.5,
 }: {
   url: string;
   size?: number;

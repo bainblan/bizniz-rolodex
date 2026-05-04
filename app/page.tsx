@@ -16,6 +16,9 @@ function ArrowDownIcon() {
   );
 }
 
+const DEMO_QR_PATH = "/?qr=landing-demo";
+const DEMO_QR_FALLBACK_URL = `https://bizniz.example${DEMO_QR_PATH}`;
+
 export default function Home() {
 
   // create empty state variable to hold entered business name
@@ -23,17 +26,14 @@ export default function Home() {
   const [businessName, setBusinessName] = useState("");
   const [isAuthed, setIsAuthed] = useState(false);
   const [hasCard, setHasCard] = useState(false);
-  const [authLoaded, setAuthLoaded] = useState(false);
-  const [demoQrUrl, setDemoQrUrl] = useState(
-    "https://bizniz.example/?qr=landing-demo"
-  );
+  const [authLoaded, setAuthLoaded] = useState(!isSupabaseConfigured);
+  const demoQrUrl =
+    typeof window === "undefined"
+      ? DEMO_QR_FALLBACK_URL
+      : `${window.location.origin}${DEMO_QR_PATH}`;
 
   const whatIsRef = useRef<HTMLElement>(null);
   const [whatIsInView, setWhatIsInView] = useState(false);
-
-  useEffect(() => {
-    setDemoQrUrl(`${window.location.origin}/?qr=landing-demo`);
-  }, []);
 
   useEffect(() => {
     const el = whatIsRef.current;
@@ -56,7 +56,6 @@ export default function Home() {
 
   useEffect(() => {
     if (!isSupabaseConfigured) {
-      setAuthLoaded(true);
       return;
     }
 

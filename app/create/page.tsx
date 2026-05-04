@@ -166,7 +166,11 @@ function ProfileCreation() {
   }, [buildPreviewQrUrl]);
 
   useEffect(() => {
-    loadPreviewData();
+    const loadPreviewTimeout = window.setTimeout(() => {
+      void loadPreviewData();
+    }, 0);
+
+    return () => window.clearTimeout(loadPreviewTimeout);
   }, [loadPreviewData]);
 
   const validateEmail = (email: string) => /^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email);
@@ -400,7 +404,7 @@ function ProfileCreation() {
               style={{ backgroundColor: formData.primaryColor }}
             >
               <div className="relative w-full max-w-[280px] aspect-square flex items-center justify-center">
-                <div className="flex h-[200px] w-[200px] items-center justify-center overflow-hidden rounded-xl bg-white shadow-md">
+                <div className="flex h-[180px] w-[180px] items-center justify-center overflow-hidden rounded-xl bg-white shadow-md">
                   {previewQrUrl ? (
                     <StyledQR
                       url={previewQrUrl}
@@ -410,12 +414,12 @@ function ProfileCreation() {
                     />
                   ) : (
                     <div className="flex h-[200px] w-[200px] items-center justify-center bg-white">
-                      <div className="h-20 w-20 overflow-hidden rounded-full bg-white">
+                      <div className="h-full w-full overflow-hidden rounded-full bg-white">
                         {/* eslint-disable-next-line @next/next/no-img-element */}
                         <img
                           src={logoUrl || DEFAULT_LOGO_IMAGE_SRC}
                           alt="Logo"
-                          className="h-full w-full object-cover"
+                          className="h-20 w-20 object-cover"
                           style={{
                             transform: logoUrl ? undefined : `scale(${DEFAULT_LOGO_SCALE})`,
                             transformOrigin: "center",
