@@ -11,7 +11,7 @@ export function StyledQR({
   size = 173,
   imageUrl,
   contentScale = 1,
-  logoSizeRatio = 0.5,
+  logoSizeRatio = 0.4,
 }: {
   url: string;
   size?: number;
