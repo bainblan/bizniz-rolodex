@@ -104,7 +104,7 @@ function ProfileCreation() {
         return null;
       }
 
-      return username?.trim() ? buildQrCodeUrl(username) : `${window.location.origin}/create`;
+      return username?.trim() ? buildQrCodeUrl(username) : `${window.location.origin}/rolodex`;
     },
     [buildQrCodeUrl]
   );

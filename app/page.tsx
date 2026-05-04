@@ -16,7 +16,7 @@ function ArrowDownIcon() {
   );
 }
 
-const DEMO_QR_PATH = "/?qr=landing-demo";
+const DEMO_QR_PATH = "rolodex";
 const DEMO_QR_FALLBACK_URL = `https://bizniz.example${DEMO_QR_PATH}`;
 
 export default function Home() {
@@ -212,6 +212,7 @@ export default function Home() {
           {/* Example Business Card */}
           <div className="w-full max-w-[360px] fade-on-scroll fade-in-up-5">
             <BiznizCard
+              qrSize={180}
               card={{
                 company_name: "CompanyName",
                 tagline: "OptionalTagline",
