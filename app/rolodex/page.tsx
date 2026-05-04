@@ -74,7 +74,7 @@ const DEMO_CARDS: RolodexCardData[] = [
       website: "acmedesign.co",
       secondary_color: "#400068",
       primary_color: "#d9c7ec",
-      qr_code_url: "https://bizniz.example/rolodex?username=janedoe",
+      qr_code_url: "https://bizniz.example/rolodex",
     },
   },
   {
@@ -91,7 +91,7 @@ const DEMO_CARDS: RolodexCardData[] = [
       website: "pixelforge.io",
       secondary_color: "#1e3a8a",
       primary_color: "#c7d4ec",
-      qr_code_url: "https://bizniz.example/rolodex?username=mikechen",
+      qr_code_url: "https://bizniz.example/rolodex",
     },
   },
   {
@@ -108,7 +108,7 @@ const DEMO_CARDS: RolodexCardData[] = [
       website: "greenbean.co",
       secondary_color: "#1f5f3a",
       primary_color: "#c7ecd4",
-      qr_code_url: "https://bizniz.example/rolodex?username=sarahj",
+      qr_code_url: "https://bizniz.example/rolodex",
     },
   },
   {
@@ -125,7 +125,7 @@ const DEMO_CARDS: RolodexCardData[] = [
       website: "quantumlabs.ai",
       secondary_color: "#7f1d1d",
       primary_color: "#ecc7c7",
-      qr_code_url: "https://bizniz.example/rolodex?username=alexr",
+      qr_code_url: "https://bizniz.example/rolodex",
     },
   },
 ];
