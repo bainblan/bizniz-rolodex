@@ -24,9 +24,14 @@ export default function Home() {
   const [isAuthed, setIsAuthed] = useState(false);
   const [hasCard, setHasCard] = useState(false);
   const [authLoaded, setAuthLoaded] = useState(false);
+  const [demoQrUrl, setDemoQrUrl] = useState("https://bizniz.example");
 
   const whatIsRef = useRef<HTMLElement>(null);
   const [whatIsInView, setWhatIsInView] = useState(false);
+
+  useEffect(() => {
+    setDemoQrUrl(window.location.origin);
+  }, []);
 
   useEffect(() => {
     const el = whatIsRef.current;
@@ -216,7 +221,7 @@ export default function Home() {
                 website: "website.url",
                 secondary_color: "#400068",
                 primary_color: "#d9c7ec",
-                qr_code_url: "https://bizniz.example/rolodex?username=companyname",
+                qr_code_url: demoQrUrl,
               }}
             />
           </div>

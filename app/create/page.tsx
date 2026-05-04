@@ -98,9 +98,20 @@ function ProfileCreation() {
     return `${window.location.origin}/rolodex?username=${encodeURIComponent(username)}`;
   }, []);
 
+  const buildPreviewQrUrl = useCallback(
+    (username?: string | null) => {
+      if (typeof window === "undefined") {
+        return null;
+      }
+
+      return username?.trim() ? buildQrCodeUrl(username) : window.location.origin;
+    },
+    [buildQrCodeUrl]
+  );
+
   const loadPreviewData = useCallback(async () => {
     if (!isSupabaseConfigured) {
-      setPreviewQrUrl(null);
+      setPreviewQrUrl(buildPreviewQrUrl());
       return;
     }
 
@@ -109,7 +120,7 @@ function ProfileCreation() {
     } = await supabase.auth.getUser();
 
     if (!user) {
-      setPreviewQrUrl(null);
+      setPreviewQrUrl(buildPreviewQrUrl());
       setExistingCard(null);
       return;
     }
@@ -146,13 +157,13 @@ function ProfileCreation() {
 
     if (profileError) {
       console.error("Error loading profile preview:", profileError);
-      setPreviewQrUrl(null);
+      setPreviewQrUrl(buildPreviewQrUrl());
       return;
     }
 
     const username = profileData?.username?.trim();
-    setPreviewQrUrl(username ? buildQrCodeUrl(username) : null);
-  }, [buildQrCodeUrl]);
+    setPreviewQrUrl(buildPreviewQrUrl(username));
+  }, [buildPreviewQrUrl]);
 
   useEffect(() => {
     loadPreviewData();
