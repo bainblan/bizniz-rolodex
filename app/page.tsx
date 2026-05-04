@@ -212,7 +212,7 @@ export default function Home() {
           {/* Example Business Card */}
           <div className="w-full max-w-[360px] fade-on-scroll fade-in-up-5">
             <BiznizCard
-              qrSize={180}
+              qrSize={200}
               card={{
                 company_name: "CompanyName",
                 tagline: "OptionalTagline",

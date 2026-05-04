@@ -9,7 +9,7 @@ import { StyledQR } from "@/app/components/styledqr";
 
 const DEFAULT_LOGO_IMAGE_SRC = "/default-logo.png";
 const DEFAULT_LOGO_SCALE = 1.32;
-const CREATE_PAGE_QR_SIZE = 200;
+const CREATE_PAGE_QR_SIZE = 180;
 const CREATE_PAGE_LOGO_RATIO = 80 / CREATE_PAGE_QR_SIZE;
 
 interface ExistingCard {

@@ -48,9 +48,14 @@ export function Navbar() {
           Rolodex
         </Link>
         {isAuthed ? (
-          <button type="button" onClick={handleSignOut} className={buttonStyles}>
-            Sign Out
-          </button>
+          <>
+            <Link href="/create" className={buttonStyles}>
+              My Card
+            </Link>
+            <button type="button" onClick={handleSignOut} className={buttonStyles}>
+              Sign Out
+            </button>
+          </>
         ) : (
           <>
             <Link href="/signup" className={buttonStyles}>
