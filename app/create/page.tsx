@@ -222,8 +222,11 @@ function ProfileCreation() {
   const handleGenerate = async () => {
     const { firstName, lastName, companyName, tagline, email, website, phone } = formData;
 
-    if (firstName.length > 15 || lastName.length > 15 || companyName.length > 15) {
-      return alert("Names and Business Name must be 15 characters or less.");
+    if (firstName.length > 15 || lastName.length > 15) {
+      return alert("Names must be 15 characters or less.");
+    }
+    if (companyName.length > 20) {
+      return alert("Business Name must be 20 characters or less.");
     }
     if (tagline.length > 20) {
       return alert("Tagline must be 20 characters or less.");
